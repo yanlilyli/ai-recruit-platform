@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光子S工作室 · AI招聘交叉面试派单系统 v3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+    min-height: 100vh; color: #1a1a2e;
+  }
+  .header {
+    background: linear-gradient(135deg, #1F4E79 0%, #2E75B6 100%);
+    color: white; padding: 20px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .header h1 { font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .header .subtitle { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .role-switcher {
+    display: flex; gap: 8px; padding: 16px 40px; background: white;
+    border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100;
+  }
+  .role-btn {
+    padding: 10px 20px; border: 2px solid #e5e7eb; background: white;
+    border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
+    transition: all 0.2s; color: #4b5563;
+  }
+  .role-btn:hover { border-color: #2E75B6; color: #2E75B6; }
+  .role-btn.active { background: #2E75B6; color: white; border-color: #2E75B6; }
+  .container { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .card {
+    background: white; border-radius: 12px; padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 18px; margin-bottom: 8px; color: #1F4E79;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card .desc { color: #6b7280; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block; font-size: 13px; font-weight: 600;
+    margin-bottom: 6px; color: #374151;
+  }
+  .form-group label .required { color: #ef4444; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1px solid #d1d5db;
+    border-radius: 6px; font-size: 14px; font-family: inherit;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    outline: none; border-color: #2E75B6;
+  }
+  .form-group textarea { min-height: 70px; resize: vertical; }
+
+  /* 能力卡设计 */
+  .capability-table {
+    width: 100%; border-collapse: collapse; margin-top: 8px;
+  }
+  .capability-table th, .capability-table td {
+    padding: 10px; border: 1px solid #e5e7eb; text-align: center;
+    font-size: 13px;
+  }
+  .capability-table th {
+    background: #f3f4f6; font-weight: 600; color: #374151;
+  }
+  .capability-table td:first-child { text-align: left; font-weight: 500; }
+  .cap-desc-row td { background: #fafbfc; font-size: 11px; color: #6b7280; padding: 4px 10px; }
+  .req-toggle {
+    display: inline-flex; gap: 4px;
+  }
+  .req-btn {
+    padding: 4px 10px; border-radius: 4px; font-size: 12px;
+    cursor: pointer; border: 1px solid #d1d5db; background: white;
+    user-select: none;
+  }
+  .req-btn.must.active { background: #ef4444; color: white; border-color: #ef4444; }
+  .req-btn.nice.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+  .level-select {
+    padding: 4px 8px; border-radius: 4px; border: 1px solid #d1d5db;
+    font-size: 12px; background: white; min-width: 70px;
+  }
+  .level-select:disabled { background: #f3f4f6; color: #9ca3af; }
+
+  /* 按钮 */
+  .btn {
+    padding: 10px 24px; border: none; border-radius: 6px;
+    cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;
+  }
+  .btn-primary { background: #2E75B6; color: white; }
+  .btn-primary:hover { background: #1F4E79; }
+  .btn-success { background: #10b981; color: white; }
+  .btn-danger { background: #ef4444; color: white; }
+  .btn-secondary { background: #e5e7eb; color: #374151; }
+  .btn-warning { background: #f59e0b; color: white; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-xs { padding: 3px 8px; font-size: 11px; }
+
+  /* 表格 */
+  .table { width: 100%; border-collapse: collapse; }
+  .table th, .table td {
+    padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb;
+    font-size: 13px; vertical-align: top;
+  }
+  .table th {
+    background: #f9fafb; font-weight: 600; color: #374151;
+    font-size: 12px; letter-spacing: 0.5px;
+  }
+  .table tr:hover { background: #fafbfc; }
+
+  /* 标签 */
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-assigned { background: #dbeafe; color: #1e40af; }
+  .badge-done { background: #d1fae5; color: #065f46; }
+  .badge-high { background: #fee2e2; color: #991b1b; }
+  .badge-mid { background: #fef3c7; color: #92400e; }
+  .badge-low { background: #e5e7eb; color: #374151; }
+
+  /* L1/L2/L3 标签 */
+  .lv-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 600; margin: 1px;
+  }
+  .lv-l0 { background: #e5e7eb; color: #4b5563; }
+  .lv-l1 { background: #d1fae5; color: #065f46; }
+  .lv-l2 { background: #dbeafe; color: #1e40af; }
+  .lv-l3 { background: #ede9fe; color: #5b21b6; }
+  .lv-must { background: #fee2e2; color: #991b1b; }
+  .lv-nice { background: #fef3c7; color: #92400e; }
+
+  /* 标尺定义卡 */
+  .level-def-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-top: 12px;
+  }
+  .level-def-card {
+    padding: 16px; border-radius: 10px; border-top: 4px solid;
+    background: #fafbfc;
+  }
+  .level-def-card.l0 { border-color: #9ca3af; }
+  .level-def-card.l1 { border-color: #10b981; }
+  .level-def-card.l2 { border-color: #3b82f6; }
+  .level-def-card.l3 { border-color: #8b5cf6; }
+  .level-def-card .lv-name {
+    font-weight: 700; font-size: 16px; margin-bottom: 8px;
+  }
+  .level-def-card .lv-def {
+    font-size: 13px; color: #374151; margin-bottom: 8px; line-height: 1.5;
+  }
+  .level-def-card .lv-eg {
+    font-size: 11px; color: #6b7280; line-height: 1.6;
+    background: white; padding: 8px; border-radius: 4px; margin-top: 6px;
+  }
+
+  /* 统计卡 */
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: white; padding: 20px; border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: #1F4E79; }
+  .stat-card .label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+  /* 模态框 */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white; border-radius: 12px; padding: 28px;
+    width: 90%; max-width: 720px; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { margin-bottom: 16px; color: #1F4E79; }
+  .empty {
+    text-align: center; padding: 40px; color: #9ca3af; font-size: 14px;
+  }
+  .tag {
+    display: inline-block; padding: 2px 8px; background: #eff6ff;
+    color: #1e40af; border-radius: 4px; font-size: 11px; margin: 2px;
+  }
+  .interviewer-row {
+    display: flex; align-items: center; gap: 10px; padding: 12px;
+    border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 6px;
+  }
+  .interviewer-row:hover { background: #f9fafb; }
+  .interviewer-row.matched { border-color: #10b981; background: #f0fdf4; }
+  .match-score {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+  }
+  .match-high { background: #d1fae5; color: #065f46; }
+  .match-mid { background: #fef3c7; color: #92400e; }
+  .match-low { background: #fee2e2; color: #991b1b; }
+
+  /* 标尺章节 */
+  .ruler-banner {
+    background: linear-gradient(135deg, #eff6ff 0%, #ede9fe 100%);
+    border-left: 4px solid #2E75B6; padding: 16px;
+    border-radius: 8px; margin-bottom: 20px;
+  }
+  .ruler-banner h3 {
+    color: #1F4E79; margin-bottom: 6px; font-size: 15px;
+  }
+  .ruler-banner p { font-size: 13px; color: #374151; line-height: 1.6; }
+
+  /* 时间档期 */
+  .schedule-grid {
+    display: grid; grid-template-columns: 80px repeat(7, 1fr);
+    gap: 4px; margin-top: 8px;
+  }
+  .schedule-cell {
+    padding: 6px 4px; text-align: center; font-size: 11px;
+    border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer;
+    background: white; user-select: none;
+  }
+  .schedule-cell.header { background: #f3f4f6; font-weight: 600; cursor: default; }
+  .schedule-cell.label { background: #f9fafb; font-weight: 600; cursor: default; font-size: 12px; }
+  .schedule-cell.available { background: #d1fae5; color: #065f46; }
+  .schedule-cell:not(.header):not(.label):hover { border-color: #2E75B6; }
+
+  /* 高亮卡 */
+  .highlight {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 12px; border-radius: 8px; margin-bottom: 12px;
+    font-size: 13px; color: #78350f;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;">v3.3</span></h1>
+  <div class="subtitle">需求方下单 · 管理员评定面试官能力 · 派单匹配 · L0/L1/L2/L3专业标尺</div>
+</div>
+
+<div class="role-switcher">
+  <button class="role-btn active" onclick="switchRole('demand', event)">📋 需求方下单</button>
+  <button class="role-btn" onclick="switchRole('ruler', event)">📐 能力标尺</button>
+  <button class="role-btn" onclick="tryEnterAdmin(event)">🔐 管理员后台</button>
+</div>
+
+<div class="container">
+
+<!-- ============ 需求方视图 ============ -->
+<div id="view-demand" class="view active">
+  <div class="ruler-banner">
+    <h3>📐 填写前请先了解能力标尺</h3>
+    <p>为避免「精通通货膨胀」，请按照统一定义勾选——
+    <strong>L0 无需具备</strong> · <strong>L1 了解（应用调用级）</strong> · <strong>L2 熟练（业务落地级）</strong> · <strong>L3 精通（算法与架构级）</strong>。
+    详细定义可点击顶部「📐 能力标尺」查看。</p>
+  </div>
+
+  <div class="card">
+    <h2>📋 提交AI能力面试需求</h2>
+    <div class="desc">明确<strong>必备项(Must-have)</strong>和<strong>加分项(Nice-to-have)</strong>，避免"既要又要"导致简历难匹配</div>
+
+    <div class="form-group">
+      <label>需求方姓名 <span class="required">*</span></label>
+      <input type="text" id="d-name" placeholder="请输入你的姓名" onblur="renderMyDemands()">
+    </div>
+    <div class="form-group">
+      <label>所在团队/项目 <span class="required">*</span></label>
+      <input type="text" id="d-team" placeholder="如：程序一组 / 程序三组 / TA组 / 引擎组">
+    </div>
+    <div class="form-group">
+      <label>岗位名称 <span class="required">*</span></label>
+      <input type="text" id="d-position" placeholder="如：AI渲染算法工程师">
+    </div>
+    <div class="form-group">
+      <label>候选人姓名/简历ID <span class="required">*</span></label>
+      <input type="text" id="d-candidate" placeholder="如：王某某 / R20260429001">
+    </div>
+    <div class="form-group">
+      <label>核心业务知识要求</label>
+      <textarea id="d-knowledge" placeholder="如：UE5 C++、服务器架构、AAA项目经验"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>AI能力项要求 <span class="required">*</span></label>
+      <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">
+        💡 下方为常见能力维度举例，可勾选「必备」或「加分」并指定最低级别。<strong>如有其他能力需求，请在最下方"自定义能力项"填写</strong>
+      </div>
+      <table class="capability-table">
+        <thead>
+          <tr>
+            <th style="width: 28%;">能力维度</th>
+            <th style="width: 22%;">需求标记</th>
+            <th style="width: 25%;">最低级别要求</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody id="demand-cap-table"></tbody>
+      </table>
+      <div style="margin-top: 12px; padding: 12px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 6px;">
+        <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:8px;">
+          ➕ 自定义能力项（如以上维度未覆盖你的需求）
+        </div>
+        <div id="custom-caps-container"></div>
+        <button type="button" class="btn btn-warning btn-xs" onclick="addCustomCap()" style="margin-top:6px;">+ 添加自定义能力项</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>紧急程度</label>
+      <select id="d-urgency">
+        <option value="高">🔴 高（HC急招，本周需面试）</option>
+        <option value="中" selected>🟡 中（常规招聘，1-2周内）</option>
+        <option value="低">🟢 低（储备人才，可灵活安排）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>面试轮次安排 / 特别考察项</label>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">
+        💡 请说明：① 期望几轮面试 ② <strong>是否有需要特别深挖的能力项或场景</strong> ③ 其他备注
+      </div>
+      <textarea id="d-note" style="min-height:100px;" placeholder="示例：
+1. 期望2轮交叉面试，本周五前完成
+2. 特别考察项：候选人在LLM Agent的工程化经验（是否独立做过完整Agent链路），以及对推理性能优化的实战经验
+3. 重点关注是否有AAA项目落地案例"></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="submitDemand()">📤 提交需求</button>
+  </div>
+
+  <div class="card">
+    <h2>📜 我的需求</h2>
+    <div class="desc">仅展示与你姓名匹配的需求记录（请确保「需求方姓名」填写一致）</div>
+    <div style="margin-bottom: 12px;">
+      <button class="btn btn-secondary btn-sm" onclick="renderMyDemands()">🔄 刷新</button>
+    </div>
+    <div id="my-demands"></div>
+  </div>
+</div>
+
+<!-- ============ 管理员视图 ============ -->
+<div id="view-admin" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:12px 16px;background:#fef3c7;border-radius:8px;border-left:4px solid #f59e0b;">
+    <div style="font-size:13px;color:#78350f;">🔐 你已进入管理员后台 · 仅招聘负责人可见</div>
+    <button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">退出登录</button>
+  </div>
+  <div class="stat-grid" id="stat-grid"></div>
+
+  <div class="card">
+    <h2>📋 全部面试需求 · 派单管理</h2>
+    <div class="desc">点击"指派"为需求匹配合适的面试官，系统会按必备项L级覆盖度排序</div>
+    <div id="all-demands"></div>
+  </div>
+
+  <div class="card">
+    <h2>👥 面试官能力池 <button class="btn btn-success btn-sm" style="margin-left:12px" onclick="openInterviewerEdit()">➕ 新增面试官</button></h2>
+    <div class="desc">由你+总监+组长共同评定，记录每位面试官在各能力维度上能"把关"的最高层级（L1/L2/L3）</div>
+    <div id="all-interviewers"></div>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ 数据管理</h2>
+    <button class="btn btn-secondary btn-sm" onclick="exportData()">📥 导出全部数据(JSON)</button>
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">📤 导入数据</button>
+    <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+    <button class="btn btn-warning btn-sm" onclick="loadDemoData()">🎭 加载演示数据</button>
+    <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑️ 清空所有数据</button>
+    <div style="margin-top: 12px; font-size: 12px; color: #6b7280;">
+      💡 数据存储在浏览器本地。多人协作可定期导出备份，或部署后端API。
+    </div>
+  </div>
+</div>
+
+<!-- ============ 能力标尺视图 ============ -->
+<div id="view-ruler" class="view">
+  <div class="card">
+    <h2>📐 AI能力掌握程度 · 统一标尺</h2>
+    <div class="desc">
+      为了拉通全组评估标准，避免"精通"通货膨胀，所有需求方填写「最低要求」、所有面试官评定「可面层级」均按此标尺执行。
+    </div>
+    <div class="level-def-grid">
+      <div class="level-def-card l0">
+        <div class="lv-name" style="color:#6b7280;">⚪ L0 - 无需具备</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">N/A / 不作要求</div>
+        <div class="lv-def"><strong>定义</strong>：该能力维度对本岗位非核心要求，候选人无需具备亦可通过。但若具备，可作为加分参考。</div>
+        <div class="lv-eg">
+          <strong>使用场景</strong><br>
+          • 该岗位核心是别的方向，AI能力非主要考核<br>
+          • 用于显式标注"不要求"，避免面试官误判<br>
+          • 仅作为锦上添花的能力背景了解
+        </div>
+      </div>
+      <div class="level-def-card l1">
+        <div class="lv-name" style="color:#10b981;">🟢 L1 - 了解</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Familiar / 应用调用级</div>
+        <div class="lv-def"><strong>定义</strong>：理解基本概念和原理，能跑通开源Demo，能使用现成的工具或API完成基础任务。</div>
+        <div class="lv-eg">
+          <strong>表现示例</strong><br>
+          • 能调用大模型API并编写基础Prompt<br>
+          • 能按教程部署并运行Stable Diffusion<br>
+          • 了解强化学习基本概念<br>
+          • 能使用现成的插件库
+        </div>
+        <div class="lv-eg" style="margin-top:6px;">
+          <strong>适用场景</strong><br>
+          业务侧需要简单接入AI能力，或作为复合型人才的加分项
+        </div>
+      </div>
+      <div class="level-def-card l2">
+        <div class="lv-name" style="color:#3b82f6;">🔵 L2 - 熟练</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Proficient / 业务落地级</div>
+        <div class="lv-def"><strong>定义</strong>：具备扎实的工程化能力，能将AI技术与游戏业务（UE5/服务器）深度结合，能独立完成数据准备、模型微调或工作流搭建，并解决常见Bug。</div>
+        <div class="lv-eg">
+          <strong>表现示例</strong><br>
+          • 熟练使用LangChain等框架搭建复杂Agent工作流<br>
+          • 独立完成开源大模型/CV模型的微调（SFT/LoRA）<br>
+          • 能将ONNX等推理引擎接入游戏客户端<br>
+          • 使用PPO等算法训练游戏AI Bot
+        </div>
+        <div class="lv-eg" style="margin-top:6px;">
+          <strong>适用场景</strong><br>
+          AI应用开发的主力军，能独立负责一个AI特性的落地
+        </div>
+      </div>
+      <div class="level-def-card l3">
+        <div class="lv-name" style="color:#8b5cf6;">🟣 L3 - 精通</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Expert / 算法与架构级</div>
+        <div class="lv-def"><strong>定义</strong>：深入理解底层算法与架构原理，具备核心问题攻坚能力。能解决极端的性能瓶颈（算力、内存、延迟），或针对特定游戏场景设计创新的AI解决方案。</div>
+        <div class="lv-eg">
+          <strong>表现示例</strong><br>
+          • 能基于业务需求改进或重构模型网络结构<br>
+          • 精通推理加速与底层优化（TensorRT、CUDA算子）<br>
+          • 能从零设计复杂RL环境与奖励函数<br>
+          • 具备前沿Paper的复现与工程化落地能力
+        </div>
+        <div class="lv-eg" style="margin-top:6px;">
+          <strong>适用场景</strong><br>
+          解决核心技术难题的AI专家、底层架构师或算法研究员
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 能力维度清单</h2>
+    <table class="table">
+      <thead><tr><th>能力维度</th><th>说明</th></tr></thead>
+      <tbody id="cap-list-table"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>🔄 派单流程</h2>
+    <div class="desc" style="line-height: 1.8;">
+      <strong>1. 需求方下单</strong>：明确岗位的AI能力要求（必备/加分） + 最低L级<br>
+      <strong>2. 管理员（你+总监+组长）评定</strong>：在面试官池中维护每位面试官的能力评定<br>
+      <strong>3. 系统智能推荐</strong>：派单时按"必备项L级覆盖度"排序面试官<br>
+      <strong>4. 派单</strong>：你勾选合适的面试官（支持多人交叉面试），系统记录派单结果<br>
+      <strong>5. 面试结果回填</strong>：面试完成后管理员标记完成状态
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ============ 派单弹窗 ============ -->
+<div class="modal-overlay" id="assign-modal">
+  <div class="modal">
+    <h3>🎯 指派面试官</h3>
+    <div id="assign-modal-content"></div>
+    <div style="margin-top: 20px; text-align: right;">
+      <button class="btn btn-secondary btn-sm" onclick="closeAssignModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmAssign()">确认指派</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 面试官编辑弹窗 ============ -->
+<div class="modal-overlay" id="interviewer-modal">
+  <div class="modal">
+    <h3 id="interviewer-modal-title">➕ 新增面试官</h3>
+    <div class="form-group">
+      <label>姓名 <span class="required">*</span></label>
+      <input type="text" id="iv-name" placeholder="面试官姓名">
+    </div>
+    <div class="form-group">
+      <label>所属团队</label>
+      <input type="text" id="iv-team" placeholder="如：TA组、引擎组">
+    </div>
+    <div class="form-group">
+      <label>擅长的业务知识领域</label>
+      <textarea id="iv-knowledge" placeholder="如：渲染管线、UE5、图形学"></textarea>
+    </div>
+    <div class="form-group">
+      <label>可评估的AI能力及深度（由你+总监+组长共同评定）</label>
+      <table class="capability-table">
+        <thead>
+          <tr>
+            <th style="width:35%">能力维度</th>
+            <th>可把关到的最高层级</th>
+          </tr>
+        </thead>
+        <tbody id="iv-cap-table"></tbody>
+      </table>
+      <div style="margin-top:10px;padding:10px;background:#fffbeb;border:1px dashed #f59e0b;border-radius:6px;">
+        <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:6px;">
+          ➕ 自定义能力项（如标准维度未覆盖该面试官擅长领域）
+        </div>
+        <div id="iv-custom-caps-container"></div>
+        <button type="button" class="btn btn-warning btn-xs" onclick="addIvCustomCap()" style="margin-top:6px;">+ 添加自定义</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>面试容量（每周）</label>
+      <input type="text" id="iv-capacity" placeholder="如：2人/周">
+    </div>
+    <div class="form-group">
+      <label>可面试时间档期</label>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">点击格子标记可用时间段</div>
+      <div class="schedule-grid" id="iv-schedule"></div>
+    </div>
+    <div class="form-group">
+      <label>联系方式</label>
+      <input type="text" id="iv-contact" placeholder="微信 / 钉钉">
+    </div>
+    <div class="form-group">
+      <label>备注（评定记录）</label>
+      <textarea id="iv-remark" placeholder="如：2026.04.29 由@李彦+@张总监+@王组长 共同评定"></textarea>
+    </div>
+    <div style="text-align: right;">
+      <button class="btn btn-secondary btn-sm" onclick="closeInterviewerModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveInterviewer()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ 数据定义 ============
+const CAPABILITIES = [
+  { id: 'llm',     name: '大模型应用 (LLM/Agent)', desc: 'Prompt工程、RAG、Agent架构、LangChain等' },
+  { id: 'finetune',name: '模型微调与训练 (SFT/LoRA)', desc: '数据准备、SFT、LoRA、RLHF等' },
+  { id: 'rl',      name: '强化学习/游戏AI (RL)', desc: 'PPO、DQN、游戏Bot训练、奖励函数设计' },
+  { id: 'cv',      name: '计算机视觉/AIGC (CV)', desc: '图像识别、目标检测、SD、ControlNet等' },
+  { id: 'infra',   name: '客户端推理与底层优化', desc: 'ONNX、TensorRT、CUDA、推理加速、引擎接入' },
+  { id: 'product', name: 'AI产品/应用设计', desc: 'AI产品方案、AIGC应用场景、落地路径' },
+];
+
+const TIME_SLOTS = ['周一','周二','周三','周四','周五','周六','周日'];
+const TIME_PERIODS = ['上午','下午','晚上'];
+
+// ============ 状态管理 ============
+let state = {
+  demands: JSON.parse(localStorage.getItem('demands_v3') || '[]'),
+  interviewers: JSON.parse(localStorage.getItem('interviewers_v3') || '[]'),
+  currentRole: 'demand',
+  demandCaps: {}, // {capId: {req: 'must'|'nice', level: 'L1'|'L2'|'L3'}}
+  customCaps: [], // [{name, req, level}]
+  ivCaps: {}, // {capId: 'L1'|'L2'|'L3'}
+  ivCustomCaps: [], // [{name, level}]
+  ivSchedule: {}, // {day-period: true}
+  assigningDemandId: null,
+  selectedInterviewers: [],
+  editingInterviewer: null,
+};
+
+function save() {
+  localStorage.setItem('demands_v3', JSON.stringify(state.demands));
+  localStorage.setItem('interviewers_v3', JSON.stringify(state.interviewers));
+}
+
+// ============ 视图切换 ============
+const ADMIN_PASSWORD = 'liyan2026'; // 管理员密码（部署时可修改）
+const ADMIN_SESSION_KEY = 'admin_session_v3';
+
+function isAdminAuthed() {
+  const t = sessionStorage.getItem(ADMIN_SESSION_KEY);
+  return t && (Date.now() - parseInt(t, 10)) < 4 * 60 * 60 * 1000; // 4小时session
+}
+
+function tryEnterAdmin(ev) {
+  if (isAdminAuthed()) {
+    switchRole('admin', ev);
+    return;
+  }
+  const pwd = prompt('🔐 请输入管理员密码\n（仅招聘负责人可访问后台）');
+  if (pwd === null) return; // 取消
+  if (pwd === ADMIN_PASSWORD) {
+    sessionStorage.setItem(ADMIN_SESSION_KEY, Date.now().toString());
+    switchRole('admin', ev);
+  } else {
+    alert('❌ 密码错误，无权限访问管理员后台');
+  }
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  alert('✅ 已退出管理员登录');
+  // 切回需求方视图
+  document.querySelectorAll('.role-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === 0);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-demand').classList.add('active');
+  state.currentRole = 'demand';
+}
+
+function switchRole(role, ev) {
+  state.currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  ev.target.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + role).classList.add('active');
+  if (role === 'admin') renderAdmin();
+  if (role === 'demand') renderMyDemands();
+  if (role === 'ruler') renderRulerView();
+}
+
+// ============ 需求方能力表渲染 ============
+function renderDemandCapTable() {
+  const tbody = document.getElementById('demand-cap-table');
+  tbody.innerHTML = CAPABILITIES.map(cap => {
+    const cur = state.demandCaps[cap.id] || {};
+    return `
+      <tr>
+        <td><strong>${cap.name}</strong></td>
+        <td>
+          <div class="req-toggle">
+            <span class="req-btn must ${cur.req === 'must' ? 'active' : ''}"
+                  onclick="setReq('${cap.id}', 'must')">必备</span>
+            <span class="req-btn nice ${cur.req === 'nice' ? 'active' : ''}"
+                  onclick="setReq('${cap.id}', 'nice')">加分</span>
+          </div>
+        </td>
+        <td>
+          <select class="level-select" id="lv-${cap.id}"
+                  ${!cur.req ? 'disabled' : ''}
+                  onchange="setLevel('${cap.id}', this.value)">
+            <option value="">--</option>
+            <option value="L0" ${cur.level==='L0'?'selected':''}>L0 无需具备</option>
+            <option value="L1" ${cur.level==='L1'?'selected':''}>L1 了解</option>
+            <option value="L2" ${cur.level==='L2'?'selected':''}>L2 熟练</option>
+            <option value="L3" ${cur.level==='L3'?'selected':''}>L3 精通</option>
+          </select>
+        </td>
+        <td style="font-size:11px;color:#6b7280;text-align:left;">${cap.desc}</td>
+      </tr>
+      <tr class="cap-note-row">
+        <td colspan="4" style="padding:6px 10px;background:#fafbfc;text-align:left;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:#6b7280;white-space:nowrap;">📝 补充说明：</span>
+            <input type="text"
+                   placeholder="如：过来负责UE5渲染管线优化，需要能独立设计AI辅助渲染方案"
+                   value="${cur.note || ''}"
+                   oninput="setCapNote('${cap.id}', this.value)"
+                   style="flex:1;padding:5px 8px;border:1px solid #e5e7eb;border-radius:4px;font-size:12px;background:white;">
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function setReq(capId, type) {
+  const cur = state.demandCaps[capId] || {};
+  if (cur.req === type) {
+    // 取消选择时，保留note
+    if (cur.note) {
+      state.demandCaps[capId] = { req: '', level: '', note: cur.note };
+    } else {
+      delete state.demandCaps[capId];
+    }
+  } else {
+    state.demandCaps[capId] = { req: type, level: cur.level || '', note: cur.note || '' };
+  }
+  renderDemandCapTable();
+}
+
+function setLevel(capId, lv) {
+  if (state.demandCaps[capId]) {
+    state.demandCaps[capId].level = lv;
+  }
+}
+
+function setCapNote(capId, note) {
+  if (!state.demandCaps[capId]) {
+    state.demandCaps[capId] = { req: '', level: '', note };
+  } else {
+    state.demandCaps[capId].note = note;
+  }
+}
+
+// ============ 自定义能力项 ============
+function renderCustomCaps() {
+  const container = document.getElementById('custom-caps-container');
+  if (state.customCaps.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:#9ca3af;">暂无自定义能力项</div>';
+    return;
+  }
+  container.innerHTML = state.customCaps.map((c, i) => `
+    <div style="margin-bottom:8px;padding:10px;background:white;border-radius:6px;border:1px solid #fed7aa;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap;">能力名称：</span>
+        <input type="text" placeholder="如：图引擎AI、推荐系统、AB测试平台"
+               value="${c.name || ''}"
+               onchange="setCustomCapField(${i},'name',this.value)"
+               style="flex:1;min-width:0;padding:8px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;">
+        <button type="button" class="btn btn-danger btn-xs" onclick="removeCustomCap(${i})">删除</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:12px;color:#6b7280;">需求标记：</span>
+        <div class="req-toggle">
+          <span class="req-btn must ${c.req === 'must' ? 'active' : ''}"
+                onclick="setCustomCapField(${i},'req','must')">必备</span>
+          <span class="req-btn nice ${c.req === 'nice' ? 'active' : ''}"
+                onclick="setCustomCapField(${i},'req','nice')">加分</span>
+        </div>
+        <span style="font-size:12px;color:#6b7280;margin-left:12px;">最低级别：</span>
+        <select class="level-select" onchange="setCustomCapField(${i},'level',this.value)">
+          <option value="">--</option>
+          <option value="L0" ${c.level==='L0'?'selected':''}>L0 无需具备</option>
+          <option value="L1" ${c.level==='L1'?'selected':''}>L1 了解</option>
+          <option value="L2" ${c.level==='L2'?'selected':''}>L2 熟练</option>
+          <option value="L3" ${c.level==='L3'?'selected':''}>L3 精通</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap;">📝 补充说明：</span>
+        <input type="text"
+               placeholder="如：过来负责xx工作"
+               value="${c.note || ''}"
+               oninput="setCustomCapField(${i},'note',this.value)"
+               style="flex:1;min-width:0;padding:6px;border:1px solid #e5e7eb;border-radius:4px;font-size:12px;">
+      </div>
+    </div>
+  `).join('');
+}
+
+function addCustomCap() {
+  state.customCaps.push({ name: '', req: '', level: '', note: '' });
+  renderCustomCaps();
+}
+
+function removeCustomCap(idx) {
+  state.customCaps.splice(idx, 1);
+  renderCustomCaps();
+}
+
+function setCustomCapField(idx, field, value) {
+  if (field === 'req' && state.customCaps[idx].req === value) {
+    state.customCaps[idx].req = '';
+  } else {
+    state.customCaps[idx][field] = value;
+  }
+  if (field === 'req') renderCustomCaps();
+}
+
+// ============ 提交需求 ============
+function submitDemand() {
+  const name = document.getElementById('d-name').value.trim();
+  const team = document.getElementById('d-team').value.trim();
+  const position = document.getElementById('d-position').value.trim();
+  const candidate = document.getElementById('d-candidate').value.trim();
+  if (!name || !team || !position || !candidate) {
+    alert('请填写必填项'); return;
+  }
+  const validCaps = Object.entries(state.demandCaps).filter(([k,v]) => v.req && v.level);
+  const validCustomCaps = state.customCaps.filter(c => c.name && c.req && c.level);
+  if (validCaps.length === 0 && validCustomCaps.length === 0) {
+    alert('请至少选择一项AI能力要求并设置L级别'); return;
+  }
+  const demand = {
+    id: Date.now(),
+    name, team, position, candidate,
+    capabilities: JSON.parse(JSON.stringify(state.demandCaps)),
+    customCapabilities: JSON.parse(JSON.stringify(validCustomCaps)),
+    knowledge: document.getElementById('d-knowledge').value.trim(),
+    urgency: document.getElementById('d-urgency').value,
+    note: document.getElementById('d-note').value.trim(),
+    status: 'pending',
+    assignedTo: [],
+    createdAt: new Date().toISOString(),
+  };
+  state.demands.push(demand);
+  save();
+  alert('✅ 需求已提交！管理员将尽快为你指派面试官。');
+  document.getElementById('d-position').value = '';
+  document.getElementById('d-candidate').value = '';
+  document.getElementById('d-knowledge').value = '';
+  document.getElementById('d-note').value = '';
+  state.demandCaps = {};
+  state.customCaps = [];
+  renderDemandCapTable();
+  renderCustomCaps();
+  renderMyDemands();
+}
+
+function renderMyDemands() {
+  const myName = document.getElementById('d-name').value.trim();
+  const container = document.getElementById('my-demands');
+  if (!myName) {
+    container.innerHTML = '<div class="empty">请先在上方填写「需求方姓名」，刷新即可查看你提交的需求</div>';
+    return;
+  }
+  const list = state.demands.filter(d => d.name === myName).reverse();
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty">「${myName}」名下还没有提交记录</div>`; return;
+  }
+  container.innerHTML = `<table class="table">
+    <thead><tr><th>岗位</th><th>候选人</th><th>能力要求</th><th>紧急</th><th>状态</th><th>面试官</th><th>提交时间</th></tr></thead>
+    <tbody>
+    ${list.map(d => `
+      <tr>
+        <td><strong>${d.position}</strong><br><small style="color:#6b7280">${d.team}</small></td>
+        <td>${d.candidate}</td>
+        <td>${renderDemandCaps(d.capabilities, d.customCapabilities)}</td>
+        <td>${renderUrgency(d.urgency)}</td>
+        <td>${renderStatus(d.status)}</td>
+        <td>${d.assignedTo.length ? d.assignedTo.join('<br>') : '-'}</td>
+        <td style="font-size:11px;">${new Date(d.createdAt).toLocaleString('zh-CN')}</td>
+      </tr>
+    `).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ============ 标尺视图 ============
+function renderRulerView() {
+  const tbody = document.getElementById('cap-list-table');
+  tbody.innerHTML = CAPABILITIES.map(c =>
+    `<tr><td><strong>${c.name}</strong></td><td>${c.desc}</td></tr>`
+  ).join('');
+}
+
+// ============ 管理员视图 ============
+function renderAdmin() {
+  const pending = state.demands.filter(d => d.status === 'pending').length;
+  const assigned = state.demands.filter(d => d.status === 'assigned').length;
+  const done = state.demands.filter(d => d.status === 'done').length;
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card"><div class="num">${state.demands.length}</div><div class="label">总需求</div></div>
+    <div class="stat-card"><div class="num" style="color:#f59e0b">${pending}</div><div class="label">待派单</div></div>
+    <div class="stat-card"><div class="num" style="color:#3b82f6">${assigned}</div><div class="label">已派单</div></div>
+    <div class="stat-card"><div class="num" style="color:#10b981">${done}</div><div class="label">已完成</div></div>
+    <div class="stat-card"><div class="num" style="color:#8b5cf6">${state.interviewers.length}</div><div class="label">面试官池</div></div>
+  `;
+
+  const dContainer = document.getElementById('all-demands');
+  if (state.demands.length === 0) {
+    dContainer.innerHTML = '<div class="empty">暂无需求</div>';
+  } else {
+    dContainer.innerHTML = `<table class="table">
+      <thead><tr><th>岗位/团队</th><th>候选人</th><th>需求方</th><th>能力要求</th><th>紧急</th><th>状态</th><th>面试官</th><th>操作</th></tr></thead>
+      <tbody>
+      ${state.demands.slice().reverse().map(d => `
+        <tr>
+          <td><strong>${d.position}</strong><br><small style="color:#6b7280">${d.team}</small></td>
+          <td>${d.candidate}</td>
+          <td>${d.name}</td>
+          <td>${renderDemandCaps(d.capabilities, d.customCapabilities)}</td>
+          <td>${renderUrgency(d.urgency)}</td>
+          <td>${renderStatus(d.status)}</td>
+          <td>${d.assignedTo.length ? d.assignedTo.join('<br>') : '-'}</td>
+          <td>
+            <button class="btn btn-primary btn-xs" onclick="openAssign(${d.id})">指派</button>
+            ${d.status === 'assigned' ? `<button class="btn btn-success btn-xs" onclick="markDone(${d.id})">完成</button>` : ''}
+            <button class="btn btn-danger btn-xs" onclick="deleteDemand(${d.id})">删除</button>
+          </td>
+        </tr>
+      `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  const iContainer = document.getElementById('all-interviewers');
+  if (state.interviewers.length === 0) {
+    iContainer.innerHTML = '<div class="empty">面试官池为空，请点击右上角「新增面试官」</div>';
+  } else {
+    iContainer.innerHTML = `<table class="table">
+      <thead><tr><th>姓名/团队</th><th>业务知识</th><th>可面能力 & 层级</th><th>容量</th><th>档期</th><th>联系</th><th>操作</th></tr></thead>
+      <tbody>
+      ${state.interviewers.map(i => `
+        <tr>
+          <td><strong>${i.name}</strong><br><small style="color:#6b7280">${i.team || '-'}</small></td>
+          <td style="font-size:12px;max-width:160px;">${i.knowledge || '-'}</td>
+          <td>${renderInterviewerCaps(i.capabilities, i.customCapabilities)}</td>
+          <td>${i.capacity || '-'}</td>
+          <td style="font-size:11px;">${renderScheduleSummary(i.schedule)}</td>
+          <td style="font-size:12px;">${i.contact || '-'}</td>
+          <td>
+            <button class="btn btn-primary btn-xs" onclick="openInterviewerEdit('${i.name}')">编辑</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteInterviewer('${i.name}')">删除</button>
+          </td>
+        </tr>
+      `).join('')}
+      </tbody>
+    </table>`;
+  }
+}
+
+function renderScheduleSummary(sched) {
+  if (!sched) return '-';
+  const cells = Object.keys(sched).filter(k => sched[k]);
+  if (cells.length === 0) return '-';
+  if (cells.length >= 15) return '✅ 灵活';
+  return cells.length + ' 段';
+}
+
+// ============ 派单 ============
+const LV_RANK = { L0: 0, L1: 1, L2: 2, L3: 3 };
+
+function calcMatch(demand, itv) {
+  const caps = demand.capabilities;
+  // L0 视为无需具备，不计入必备/加分匹配
+  const mustCaps = Object.entries(caps).filter(([_,v]) => v.req === 'must' && v.level && v.level !== 'L0');
+  const niceCaps = Object.entries(caps).filter(([_,v]) => v.req === 'nice' && v.level && v.level !== 'L0');
+
+  let mustCovered = 0, mustTotal = mustCaps.length;
+  mustCaps.forEach(([cid, v]) => {
+    const ivLv = itv.capabilities[cid];
+    if (ivLv && LV_RANK[ivLv] >= LV_RANK[v.level]) mustCovered++;
+  });
+  let niceCovered = 0;
+  niceCaps.forEach(([cid, v]) => {
+    const ivLv = itv.capabilities[cid];
+    if (ivLv && LV_RANK[ivLv] >= LV_RANK[v.level]) niceCovered++;
+  });
+
+  const reqScore = mustTotal ? mustCovered / mustTotal : 1;
+  const bonScore = niceCaps.length ? niceCovered / niceCaps.length : 0;
+  const score = Math.round((reqScore * 0.75 + bonScore * 0.25) * 100);
+  return { score, mustCovered, mustTotal, niceCovered, niceTotal: niceCaps.length };
+}
+
+function openAssign(demandId) {
+  state.assigningDemandId = demandId;
+  const demand = state.demands.find(d => d.id === demandId);
+  state.selectedInterviewers = [...demand.assignedTo];
+
+  const matches = state.interviewers.map(itv => ({ itv, ...calcMatch(demand, itv) }))
+    .sort((a,b) => b.score - a.score);
+
+  const html = `
+    <div class="highlight">
+      <strong>需求：</strong>${demand.position} - ${demand.candidate}（${demand.name} / ${demand.team}）<br>
+      <strong>能力要求：</strong>${renderDemandCaps(demand.capabilities, demand.customCapabilities)}
+      ${demand.note ? `<br><strong>特别考察项 / 备注：</strong><span style="color:#78350f;">${demand.note.replace(/\n/g,'<br>')}</span>` : ''}
+    </div>
+    <div style="margin-bottom: 12px; font-size: 13px; color: #6b7280;">
+      💡 系统按「必备项L级覆盖度」排序。可多选实现交叉面试。
+    </div>
+    ${matches.length === 0 ? '<div class="empty">面试官池为空，请先添加面试官</div>' :
+      matches.map(m => `
+        <div class="interviewer-row ${state.selectedInterviewers.includes(m.itv.name) ? 'matched' : ''}">
+          <input type="checkbox" value="${m.itv.name}"
+                 ${state.selectedInterviewers.includes(m.itv.name) ? 'checked' : ''}
+                 onchange="toggleAssignee('${m.itv.name}', this)">
+          <div style="flex: 1;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <strong>${m.itv.name}</strong>
+              <span style="color:#6b7280;font-size:12px">${m.itv.team || ''}</span>
+              <span class="match-score ${m.score >= 70 ? 'match-high' : m.score >= 40 ? 'match-mid' : 'match-low'}">
+                匹配 ${m.score}%
+              </span>
+              <span style="font-size:11px;color:#6b7280;">
+                必备 ${m.mustCovered}/${m.mustTotal} · 加分 ${m.niceCovered}/${m.niceTotal}
+              </span>
+            </div>
+            <div style="font-size:12px;color:#6b7280;margin-top:4px;">
+              ${renderInterviewerCaps(m.itv.capabilities, m.itv.customCapabilities)}
+            </div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:4px;">
+              📅 ${renderScheduleSummary(m.itv.schedule)} · 容量 ${m.itv.capacity || '未填'}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+  `;
+  document.getElementById('assign-modal-content').innerHTML = html;
+  document.getElementById('assign-modal').classList.add('active');
+}
+
+function toggleAssignee(name, checkbox) {
+  const idx = state.selectedInterviewers.indexOf(name);
+  if (idx >= 0) state.selectedInterviewers.splice(idx, 1);
+  else state.selectedInterviewers.push(name);
+  checkbox.closest('.interviewer-row').classList.toggle('matched', checkbox.checked);
+}
+
+function confirmAssign() {
+  const demand = state.demands.find(d => d.id === state.assigningDemandId);
+  demand.assignedTo = [...state.selectedInterviewers];
+  demand.status = demand.assignedTo.length > 0 ? 'assigned' : 'pending';
+  save();
+  closeAssignModal();
+  renderAdmin();
+}
+
+function closeAssignModal() {
+  document.getElementById('assign-modal').classList.remove('active');
+}
+
+function markDone(id) {
+  const d = state.demands.find(x => x.id === id);
+  if (d) { d.status = 'done'; save(); renderAdmin(); }
+}
+
+function deleteDemand(id) {
+  if (!confirm('确认删除该需求？')) return;
+  state.demands = state.demands.filter(d => d.id !== id);
+  save();
+  renderAdmin();
+}
+
+function deleteInterviewer(name) {
+  if (!confirm('确认删除该面试官？')) return;
+  state.interviewers = state.interviewers.filter(i => i.name !== name);
+  save();
+  renderAdmin();
+}
+
+// ============ 面试官编辑 ============
+function openInterviewerEdit(name) {
+  state.editingInterviewer = name;
+  const itv = name ? state.interviewers.find(i => i.name === name) : null;
+  document.getElementById('interviewer-modal-title').textContent = itv ? '✏️ 编辑面试官' : '➕ 新增面试官';
+  document.getElementById('iv-name').value = itv ? itv.name : '';
+  document.getElementById('iv-name').disabled = !!itv;
+  document.getElementById('iv-team').value = itv ? itv.team || '' : '';
+  document.getElementById('iv-knowledge').value = itv ? itv.knowledge || '' : '';
+  document.getElementById('iv-capacity').value = itv ? itv.capacity || '' : '';
+  document.getElementById('iv-contact').value = itv ? itv.contact || '' : '';
+  document.getElementById('iv-remark').value = itv ? itv.remark || '' : '';
+  state.ivCaps = itv ? JSON.parse(JSON.stringify(itv.capabilities || {})) : {};
+  state.ivCustomCaps = itv ? JSON.parse(JSON.stringify(itv.customCapabilities || [])) : [];
+  state.ivSchedule = itv ? JSON.parse(JSON.stringify(itv.schedule || {})) : {};
+  renderIvCapTable();
+  renderIvCustomCaps();
+  renderIvSchedule();
+  document.getElementById('interviewer-modal').classList.add('active');
+}
+
+function closeInterviewerModal() {
+  document.getElementById('interviewer-modal').classList.remove('active');
+}
+
+function renderIvCapTable() {
+  const tbody = document.getElementById('iv-cap-table');
+  tbody.innerHTML = CAPABILITIES.map(cap => {
+    const cur = state.ivCaps[cap.id] || '';
+    return `
+      <tr>
+        <td><strong>${cap.name}</strong><br><small style="color:#6b7280;font-size:11px;">${cap.desc}</small></td>
+        <td>
+          <select class="level-select" style="min-width:120px;" onchange="setIvLevel('${cap.id}', this.value)">
+            <option value="">不可面试</option>
+            <option value="L1" ${cur==='L1'?'selected':''}>L1 了解</option>
+            <option value="L2" ${cur==='L2'?'selected':''}>L2 熟练</option>
+            <option value="L3" ${cur==='L3'?'selected':''}>L3 精通</option>
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function setIvLevel(capId, lv) {
+  if (lv) state.ivCaps[capId] = lv;
+  else delete state.ivCaps[capId];
+}
+
+// 面试官自定义能力项
+function renderIvCustomCaps() {
+  const container = document.getElementById('iv-custom-caps-container');
+  if (state.ivCustomCaps.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:#9ca3af;">暂无自定义能力项</div>';
+    return;
+  }
+  container.innerHTML = state.ivCustomCaps.map((c, i) => `
+    <div style="margin-bottom:8px;padding:10px;background:white;border-radius:6px;border:1px solid #fed7aa;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap;">能力名称：</span>
+        <input type="text" placeholder="如：图引擎AI、推荐系统"
+               value="${c.name || ''}"
+               onchange="setIvCustomCapField(${i},'name',this.value)"
+               style="flex:1;min-width:0;padding:8px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;">
+        <button type="button" class="btn btn-danger btn-xs" onclick="removeIvCustomCap(${i})">删除</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:12px;color:#6b7280;">可把关层级：</span>
+        <select class="level-select" onchange="setIvCustomCapField(${i},'level',this.value)">
+          <option value="">--</option>
+          <option value="L1" ${c.level==='L1'?'selected':''}>L1 了解</option>
+          <option value="L2" ${c.level==='L2'?'selected':''}>L2 熟练</option>
+          <option value="L3" ${c.level==='L3'?'selected':''}>L3 精通</option>
+        </select>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addIvCustomCap() {
+  state.ivCustomCaps.push({ name: '', level: '' });
+  renderIvCustomCaps();
+}
+
+function removeIvCustomCap(idx) {
+  state.ivCustomCaps.splice(idx, 1);
+  renderIvCustomCaps();
+}
+
+function setIvCustomCapField(idx, field, value) {
+  state.ivCustomCaps[idx][field] = value;
+}
+
+function renderIvSchedule() {
+  const grid = document.getElementById('iv-schedule');
+  let html = '<div class="schedule-cell header"></div>';
+  TIME_SLOTS.forEach(d => html += `<div class="schedule-cell header">${d}</div>`);
+  TIME_PERIODS.forEach(period => {
+    html += `<div class="schedule-cell label">${period}</div>`;
+    TIME_SLOTS.forEach(day => {
+      const key = `${day}-${period}`;
+      const active = state.ivSchedule[key] ? 'available' : '';
+      html += `<div class="schedule-cell ${active}" onclick="toggleSched('${key}', this)">${active ? '✓' : ''}</div>`;
+    });
+  });
+  grid.innerHTML = html;
+}
+
+function toggleSched(key, el) {
+  state.ivSchedule[key] = !state.ivSchedule[key];
+  el.classList.toggle('available', state.ivSchedule[key]);
+  el.textContent = state.ivSchedule[key] ? '✓' : '';
+}
+
+function saveInterviewer() {
+  const name = document.getElementById('iv-name').value.trim();
+  if (!name) { alert('请填写姓名'); return; }
+  const itv = {
+    name,
+    team: document.getElementById('iv-team').value.trim(),
+    knowledge: document.getElementById('iv-knowledge').value.trim(),
+    capabilities: JSON.parse(JSON.stringify(state.ivCaps)),
+    customCapabilities: JSON.parse(JSON.stringify(state.ivCustomCaps.filter(c => c.name && c.level))),
+    capacity: document.getElementById('iv-capacity').value.trim(),
+    schedule: JSON.parse(JSON.stringify(state.ivSchedule)),
+    contact: document.getElementById('iv-contact').value.trim(),
+    remark: document.getElementById('iv-remark').value.trim(),
+    updatedAt: new Date().toISOString(),
+  };
+  const idx = state.interviewers.findIndex(i => i.name === name);
+  if (idx >= 0) state.interviewers[idx] = itv;
+  else state.interviewers.push(itv);
+  save();
+  closeInterviewerModal();
+  renderAdmin();
+}
+
+// ============ 渲染工具 ============
+function renderDemandCaps(caps, customCaps) {
+  let html = Object.entries(caps || {}).map(([cid, v]) => {
+    const cap = CAPABILITIES.find(c => c.id === cid);
+    if (!cap || !v.req) return '';
+    const reqCls = v.req === 'must' ? 'lv-must' : 'lv-nice';
+    const reqText = v.req === 'must' ? '必备' : '加分';
+    const lvCls = `lv-${v.level?.toLowerCase()}`;
+    return `<div style="margin-bottom:5px;font-size:11px;">
+      <span class="lv-tag ${reqCls}">${reqText}</span>
+      <span class="lv-tag ${lvCls}">${v.level}</span>
+      ${cap.name}
+      ${v.note ? `<div style="margin-left:8px;color:#6b7280;font-size:11px;margin-top:2px;">📝 ${v.note}</div>` : ''}
+    </div>`;
+  }).join('');
+  if (customCaps && customCaps.length > 0) {
+    html += customCaps.map(c => {
+      const reqCls = c.req === 'must' ? 'lv-must' : 'lv-nice';
+      const reqText = c.req === 'must' ? '必备' : '加分';
+      const lvCls = `lv-${c.level?.toLowerCase()}`;
+      return `<div style="margin-bottom:5px;font-size:11px;">
+        <span class="lv-tag ${reqCls}">${reqText}</span>
+        <span class="lv-tag ${lvCls}">${c.level}</span>
+        <span style="color:#92400e;">⭐${c.name}</span>
+        ${c.note ? `<div style="margin-left:8px;color:#6b7280;font-size:11px;margin-top:2px;">📝 ${c.note}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+  return html || '-';
+}
+
+function renderInterviewerCaps(caps, customCaps) {
+  let html = Object.entries(caps || {}).map(([cid, lv]) => {
+    const cap = CAPABILITIES.find(c => c.id === cid);
+    if (!cap) return '';
+    const lvCls = `lv-${lv.toLowerCase()}`;
+    return `<span style="font-size:11px;display:inline-block;margin:2px;">
+      <span class="lv-tag ${lvCls}">${lv}</span>${cap.name}
+    </span>`;
+  }).join('');
+  if (customCaps && customCaps.length > 0) {
+    html += customCaps.map(c => {
+      const lvCls = `lv-${c.level.toLowerCase()}`;
+      return `<span style="font-size:11px;display:inline-block;margin:2px;">
+        <span class="lv-tag ${lvCls}">${c.level}</span><span style="color:#92400e;">⭐${c.name}</span>
+      </span>`;
+    }).join('');
+  }
+  return html || '-';
+}
+
+function renderStatus(s) {
+  if (s === 'pending') return '<span class="badge badge-pending">待派单</span>';
+  if (s === 'assigned') return '<span class="badge badge-assigned">已派单</span>';
+  if (s === 'done') return '<span class="badge badge-done">已完成</span>';
+  return s;
+}
+
+function renderUrgency(u) {
+  if (u === '高') return '<span class="badge badge-high">🔴 高</span>';
+  if (u === '中') return '<span class="badge badge-mid">🟡 中</span>';
+  return '<span class="badge badge-low">🟢 低</span>';
+}
+
+// ============ 数据管理 ============
+function exportData() {
+  const data = { demands: state.demands, interviewers: state.interviewers, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ai-recruit-data-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.demands) state.demands = data.demands;
+      if (data.interviewers) state.interviewers = data.interviewers;
+      save();
+      alert('✅ 数据已导入');
+      renderAdmin();
+    } catch (err) {
+      alert('❌ 文件格式错误');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ 确认清空所有数据？此操作不可恢复！')) return;
+  state.demands = [];
+  state.interviewers = [];
+  save();
+  renderAdmin();
+}
+
+function loadDemoData() {
+  if (!confirm('加载演示数据将覆盖现有数据，确认？')) return;
+  state.interviewers = [
+    {
+      name: '张工', team: 'TA组', knowledge: '渲染管线、UE5、图形学',
+      capabilities: { llm: 'L2', infra: 'L3', cv: 'L2' },
+      capacity: '2人/周',
+      schedule: { '周一-下午': true, '周三-下午': true, '周五-上午': true },
+      contact: '微信:zhanggong', remark: '2026-04-29 评定',
+    },
+    {
+      name: '李工', team: '引擎组', knowledge: 'C++、服务器架构',
+      capabilities: { llm: 'L2', finetune: 'L2', rl: 'L3' },
+      capacity: '3人/周',
+      schedule: { '周二-上午': true, '周二-下午': true, '周四-下午': true },
+      contact: '钉钉:ligong', remark: '2026-04-29 评定',
+    },
+    {
+      name: '王专家', team: 'AI Lab', knowledge: '深度学习、算法研究',
+      capabilities: { llm: 'L3', finetune: 'L3', rl: 'L3', cv: 'L3', infra: 'L2' },
+      capacity: '1人/周',
+      schedule: { '周三-上午': true, '周五-下午': true },
+      contact: '微信:wangexpert', remark: '工作室AI技术专家',
+    },
+  ];
+  state.demands = [
+    {
+      id: Date.now(),
+      name: '陈策划', team: 'S工作室-策划组', position: 'AI游戏策划',
+      candidate: '候选人A',
+      capabilities: { llm: { req: 'must', level: 'L2' }, product: { req: 'must', level: 'L2' }, rl: { req: 'nice', level: 'L1' } },
+      knowledge: '游戏玩法设计、玩家行为分析',
+      urgency: '高', note: '希望本周完成面试',
+      status: 'pending', assignedTo: [],
+      createdAt: new Date().toISOString(),
+    },
+  ];
+  save();
+  alert('✅ 演示数据已加载');
+  renderAdmin();
+}
+
+// ============ 初始化 ============
+renderDemandCapTable();
+renderCustomCaps();
+renderRulerView();
+renderMyDemands();
+</script>
+</body>
+</html>
