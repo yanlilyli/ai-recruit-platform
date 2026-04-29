@@ -101,7 +101,6 @@
     font-size: 13px; font-weight: 700;
   }
   .cap-group-header.应用研究算法 { background: #fce7f3; color: #831843; border-left: 3px solid #ec4899; }
-  .cap-group-header.基础研究算法 { background: #fef3c7; color: #78350f; border-left: 3px solid #f59e0b; }
   .cap-group-header.应用开发 { background: #dbeafe; color: #1e3a8a; border-left: 3px solid #3b82f6; }
   .cap-group-header.跨职能 { background: #d1fae5; color: #064e3b; border-left: 3px solid #10b981; }
   .capability-table {
@@ -342,8 +341,8 @@
 <body>
 
 <div class="header">
-  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;font-weight:400;">v3.6</span></h1>
-  <div class="subtitle">面向AI算法人才招聘 · 应用研究/基础研究/应用开发/跨职能 四类能力分组 · L0~L3 统一标尺</div>
+  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;font-weight:400;">v3.7</span></h1>
+  <div class="subtitle">面向S工作室AI算法人才招聘 · 应用研究/应用开发/跨职能 三类能力分组 · L0~L3 统一标尺</div>
 </div>
 
 <div class="role-switcher">
@@ -358,11 +357,10 @@
 <div id="view-demand" class="view active">
   <div class="ruler-banner">
     <h3>📐 填写前请先了解能力标尺</h3>
-    <p>本系统专为<strong>AI算法人才招聘</strong>设计。能力按
-    <strong style="color:#831843;">🎨 应用研究算法（S工作室主力）</strong> ·
-    <strong style="color:#78350f;">🧪 基础研究算法（技术部方向）</strong> ·
+    <p>本系统专为<strong>S工作室AI算法人才招聘</strong>设计。能力按
+    <strong style="color:#831843;">🎨 应用研究算法</strong> ·
     <strong style="color:#1e3a8a;">🛠 应用开发</strong> ·
-    <strong style="color:#064e3b;">🎯 跨职能</strong> 四类分组。
+    <strong style="color:#064e3b;">🎯 跨职能</strong> 三类分组。
     级别采用 <strong>L0 无需具备 · L1 了解 · L2 熟练 · L3 精通</strong> 统一标尺。</p>
   </div>
 
@@ -394,7 +392,7 @@
     <div class="form-group">
       <label>AI能力项要求 <span class="required">*</span></label>
       <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px; line-height:1.65;">
-        💡 <strong>S工作室主要做应用研究类</strong>（含后训练、RL、多模态、论文等）。基础研究类（预训练）一般由技术部承担，按需勾选即可。
+        💡 S工作室聚焦 <strong>应用研究算法</strong>（后训练、RL、多模态、论文）+ <strong>应用开发</strong> + <strong>跨职能</strong>。请勾选「必备/加分」并指定最低级别。
       </div>
       <div id="demand-cap-container"></div>
       <div class="custom-cap-box">
@@ -628,16 +626,14 @@
 
 <script>
 // ============ 数据定义 ============
-// 能力维度按【应用研究算法 / 基础研究算法 / 应用开发 / 跨职能】分组
-// S工作室主要做应用研究类，基础研究类供技术部参考
+// 能力维度按【应用研究算法 / 应用开发 / 跨职能】分组
+// S工作室聚焦应用研究方向，不涉及基础研究（预训练）
 const CAPABILITIES = [
-  // 🎯 应用研究类（S工作室主力）
+  // 🎨 应用研究算法（S工作室主力）
   { id: 'posttrain', group: '应用研究算法', name: '后训练 (Post-Training)', desc: 'SFT、RLHF、DPO、PPO、奖励模型、对齐与偏好优化等（应用研究核心能力）' },
   { id: 'rl',        group: '应用研究算法', name: '强化学习 / 游戏Bot', desc: 'PPO/DQN/MARL、Reward设计、游戏AI Bot训练、Self-Play等' },
   { id: 'multimodal',group: '应用研究算法', name: '多模态 / AIGC算法', desc: '视觉/语音/文本融合、Diffusion、SD、视频生成模型等' },
   { id: 'paper',     group: '应用研究算法', name: '论文与前沿研究', desc: '顶会论文（NeurIPS/ICML/CVPR等）、Paper复现与改造能力' },
-  // 🧪 基础研究类（多用于技术部，S工作室一般不要求）
-  { id: 'pretrain',  group: '基础研究算法', name: '预训练与基座模型', desc: '大模型预训练、模型结构改进、Scaling Law、分布式训练等（基础研究核心，技术部方向）' },
   // 🛠 应用开发类
   { id: 'llm_app',   group: '应用开发', name: '大模型应用 (LLM/Agent)', desc: 'Prompt工程、RAG、Agent架构、LangChain/LlamaIndex等' },
   { id: 'infra',     group: '应用开发', name: '推理工程与性能优化', desc: 'ONNX/TensorRT/vLLM、量化压缩、推理加速、客户端部署' },
@@ -648,10 +644,9 @@ const CAPABILITIES = [
   { id: 'ops',       group: '跨职能', name: 'AI运营 / 内容运营', desc: 'AIGC内容运营、用户行为分析、A/B测试、效果数据闭环' },
 ];
 
-const CAP_GROUPS = ['应用研究算法', '基础研究算法', '应用开发', '跨职能'];
+const CAP_GROUPS = ['应用研究算法', '应用开发', '跨职能'];
 const GROUP_COLORS = {
   '应用研究算法': { bg: '#fce7f3', border: '#ec4899', text: '#831843' },
-  '基础研究算法': { bg: '#fef3c7', border: '#f59e0b', text: '#78350f' },
   '应用开发': { bg: '#dbeafe', border: '#3b82f6', text: '#1e3a8a' },
   '跨职能': { bg: '#d1fae5', border: '#10b981', text: '#064e3b' },
 };
@@ -662,7 +657,6 @@ const TIME_PERIODS = ['上午','下午','晚上'];
 function getGroupIcon(group) {
   return {
     '应用研究算法': '🎨',
-    '基础研究算法': '🧪',
     '应用开发': '🛠',
     '跨职能': '🎯',
   }[group] || '📌';
@@ -670,7 +664,6 @@ function getGroupIcon(group) {
 function getGroupHint(group) {
   return {
     '应用研究算法': 'S工作室主力方向',
-    '基础研究算法': '一般由技术部承担，按需勾选',
     '应用开发': 'AI应用工程师必备',
     '跨职能': '策划/PM/运营岗参考',
   }[group] || '';
@@ -1471,8 +1464,8 @@ function loadDemoData() {
       contact: '钉钉:li_eng', remark: '2026-04-29 评定',
     },
     {
-      name: '王研究', team: 'AI Lab · 研究组', knowledge: '预训练、多模态、Paper研究',
-      capabilities: { pretrain: 'L3', posttrain: 'L3', multimodal: 'L3', paper: 'L3', rl: 'L2' },
+      name: '王研究', team: 'AI Lab · 研究组', knowledge: '后训练、多模态、Paper研究',
+      capabilities: { posttrain: 'L3', multimodal: 'L3', paper: 'L3', rl: 'L2' },
       capacity: '1人/周',
       schedule: { '周三-上午': true, '周五-下午': true },
       contact: '微信:wang_research', remark: '工作室AI算法专家，能发顶会',
