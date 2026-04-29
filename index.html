@@ -6,212 +6,297 @@
 <title>光子S工作室 · AI招聘交叉面试派单系统 v3</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --accent: #ec4899;
+    --bg-grad-1: #eef2ff;
+    --bg-grad-2: #fdf2f8;
+    --text-1: #0f172a;
+    --text-2: #475569;
+    --text-3: #94a3b8;
+    --border: #e2e8f0;
+    --surface: #ffffff;
+    --surface-soft: #f8fafc;
+  }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
-    min-height: 100vh; color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+    background-attachment: fixed;
+    min-height: 100vh; color: var(--text-1);
+    font-feature-settings: "tnum";
   }
   .header {
-    background: linear-gradient(135deg, #1F4E79 0%, #2E75B6 100%);
-    color: white; padding: 20px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+    color: white; padding: 24px 40px;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.25);
+    position: relative; overflow: hidden;
   }
-  .header h1 { font-size: 22px; display: flex; align-items: center; gap: 10px; }
-  .header .subtitle { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .header::before {
+    content: ""; position: absolute; top: -50%; right: -10%;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  }
+  .header h1 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+  .header .subtitle { font-size: 13px; opacity: 0.92; margin-top: 6px; position: relative; z-index: 1; letter-spacing: 0.3px; }
   .role-switcher {
-    display: flex; gap: 8px; padding: 16px 40px; background: white;
-    border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100;
+    display: flex; gap: 8px; padding: 14px 40px;
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
   }
   .role-btn {
-    padding: 10px 20px; border: 2px solid #e5e7eb; background: white;
-    border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
-    transition: all 0.2s; color: #4b5563;
+    padding: 10px 22px; border: 1.5px solid var(--border); background: white;
+    border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;
+    transition: all 0.2s; color: var(--text-2);
   }
-  .role-btn:hover { border-color: #2E75B6; color: #2E75B6; }
-  .role-btn.active { background: #2E75B6; color: white; border-color: #2E75B6; }
-  .container { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+  .role-btn:hover {
+    border-color: var(--primary); color: var(--primary);
+    transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+  }
+  .role-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+  }
+  .container { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
   .view { display: none; }
-  .view.active { display: block; }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   .card {
-    background: white; border-radius: 12px; padding: 28px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+    background: var(--surface); border-radius: 16px; padding: 28px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04);
+    margin-bottom: 20px; border: 1px solid rgba(226,232,240,0.6);
   }
   .card h2 {
-    font-size: 18px; margin-bottom: 8px; color: #1F4E79;
+    font-size: 18px; margin-bottom: 8px; color: var(--text-1); font-weight: 700;
     display: flex; align-items: center; gap: 8px;
   }
-  .card .desc { color: #6b7280; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
-  .form-group { margin-bottom: 18px; }
+  .card .desc { color: var(--text-2); font-size: 13px; margin-bottom: 20px; line-height: 1.65; }
+  .form-group { margin-bottom: 20px; }
   .form-group label {
     display: block; font-size: 13px; font-weight: 600;
-    margin-bottom: 6px; color: #374151;
+    margin-bottom: 8px; color: var(--text-1);
   }
   .form-group label .required { color: #ef4444; }
   .form-group input, .form-group textarea, .form-group select {
-    width: 100%; padding: 10px 12px; border: 1px solid #d1d5db;
-    border-radius: 6px; font-size: 14px; font-family: inherit;
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 14px; font-family: inherit;
+    transition: all 0.15s; background: white;
   }
   .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-    outline: none; border-color: #2E75B6;
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
   }
   .form-group textarea { min-height: 70px; resize: vertical; }
 
-  /* 能力卡设计 */
+  /* 能力卡设计 - 分组样式 */
+  .cap-group-header {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0 8px;
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; font-weight: 700;
+  }
+  .cap-group-header.算法 { background: #fce7f3; color: #831843; border-left: 3px solid #ec4899; }
+  .cap-group-header.应用开发 { background: #dbeafe; color: #1e3a8a; border-left: 3px solid #3b82f6; }
+  .cap-group-header.跨职能 { background: #d1fae5; color: #064e3b; border-left: 3px solid #10b981; }
   .capability-table {
-    width: 100%; border-collapse: collapse; margin-top: 8px;
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    margin-top: 4px; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border);
   }
   .capability-table th, .capability-table td {
-    padding: 10px; border: 1px solid #e5e7eb; text-align: center;
+    padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: center;
     font-size: 13px;
   }
+  .capability-table tr:last-child td { border-bottom: none; }
   .capability-table th {
-    background: #f3f4f6; font-weight: 600; color: #374151;
+    background: var(--surface-soft); font-weight: 600; color: var(--text-2);
+    font-size: 12px; letter-spacing: 0.3px;
   }
   .capability-table td:first-child { text-align: left; font-weight: 500; }
-  .cap-desc-row td { background: #fafbfc; font-size: 11px; color: #6b7280; padding: 4px 10px; }
-  .req-toggle {
-    display: inline-flex; gap: 4px;
-  }
+  .req-toggle { display: inline-flex; gap: 4px; }
   .req-btn {
-    padding: 4px 10px; border-radius: 4px; font-size: 12px;
-    cursor: pointer; border: 1px solid #d1d5db; background: white;
-    user-select: none;
+    padding: 5px 12px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; border: 1.5px solid var(--border); background: white;
+    user-select: none; transition: all 0.15s; font-weight: 500;
   }
-  .req-btn.must.active { background: #ef4444; color: white; border-color: #ef4444; }
-  .req-btn.nice.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+  .req-btn:hover { transform: translateY(-1px); }
+  .req-btn.must.active {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(239,68,68,0.35);
+  }
+  .req-btn.nice.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(245,158,11,0.35);
+  }
   .level-select {
-    padding: 4px 8px; border-radius: 4px; border: 1px solid #d1d5db;
-    font-size: 12px; background: white; min-width: 70px;
+    padding: 6px 10px; border-radius: 6px; border: 1.5px solid var(--border);
+    font-size: 12px; background: white; min-width: 100px; transition: all 0.15s;
   }
-  .level-select:disabled { background: #f3f4f6; color: #9ca3af; }
+  .level-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .level-select:disabled { background: var(--surface-soft); color: var(--text-3); }
 
   /* 按钮 */
   .btn {
-    padding: 10px 24px; border: none; border-radius: 6px;
-    cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;
+    padding: 11px 26px; border: none; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.15s;
+    letter-spacing: 0.2px;
   }
-  .btn-primary { background: #2E75B6; color: white; }
-  .btn-primary:hover { background: #1F4E79; }
-  .btn-success { background: #10b981; color: white; }
-  .btn-danger { background: #ef4444; color: white; }
-  .btn-secondary { background: #e5e7eb; color: #374151; }
-  .btn-warning { background: #f59e0b; color: white; }
-  .btn-sm { padding: 6px 14px; font-size: 12px; }
-  .btn-xs { padding: 3px 8px; font-size: 11px; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.45); }
+  .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
+  .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 4px 14px rgba(239,68,68,0.3); }
+  .btn-secondary { background: var(--surface-soft); color: var(--text-1); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: white; border-color: var(--primary); color: var(--primary); }
+  .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
+  .btn-sm { padding: 7px 16px; font-size: 12px; }
+  .btn-xs { padding: 4px 10px; font-size: 11px; box-shadow: none; }
+  .btn-xs:hover { transform: none; }
 
   /* 表格 */
   .table { width: 100%; border-collapse: collapse; }
   .table th, .table td {
-    padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb;
+    padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--border);
     font-size: 13px; vertical-align: top;
   }
   .table th {
-    background: #f9fafb; font-weight: 600; color: #374151;
-    font-size: 12px; letter-spacing: 0.5px;
+    background: var(--surface-soft); font-weight: 600; color: var(--text-2);
+    font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
   }
-  .table tr:hover { background: #fafbfc; }
+  .table tr { transition: background 0.15s; }
+  .table tr:hover { background: var(--surface-soft); }
 
   /* 标签 */
   .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 12px;
-    font-size: 11px; font-weight: 600;
+    display: inline-block; padding: 4px 12px; border-radius: 100px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
   }
-  .badge-pending { background: #fef3c7; color: #92400e; }
-  .badge-assigned { background: #dbeafe; color: #1e40af; }
-  .badge-done { background: #d1fae5; color: #065f46; }
-  .badge-high { background: #fee2e2; color: #991b1b; }
-  .badge-mid { background: #fef3c7; color: #92400e; }
-  .badge-low { background: #e5e7eb; color: #374151; }
+  .badge-pending { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+  .badge-assigned { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
+  .badge-done { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+  .badge-high { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; }
+  .badge-mid { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+  .badge-low { background: var(--surface-soft); color: var(--text-2); border: 1px solid var(--border); }
 
-  /* L1/L2/L3 标签 */
+  /* L0/L1/L2/L3 标签 */
   .lv-tag {
-    display: inline-block; padding: 2px 8px; border-radius: 10px;
-    font-size: 11px; font-weight: 600; margin: 1px;
+    display: inline-block; padding: 2px 9px; border-radius: 100px;
+    font-size: 11px; font-weight: 700; margin: 1px; letter-spacing: 0.3px;
   }
-  .lv-l0 { background: #e5e7eb; color: #4b5563; }
+  .lv-l0 { background: #f1f5f9; color: #475569; }
   .lv-l1 { background: #d1fae5; color: #065f46; }
   .lv-l2 { background: #dbeafe; color: #1e40af; }
   .lv-l3 { background: #ede9fe; color: #5b21b6; }
-  .lv-must { background: #fee2e2; color: #991b1b; }
-  .lv-nice { background: #fef3c7; color: #92400e; }
+  .lv-must { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; }
+  .lv-nice { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
 
   /* 标尺定义卡 */
   .level-def-grid {
     display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 14px; margin-top: 12px;
+    gap: 16px; margin-top: 16px;
   }
   .level-def-card {
-    padding: 16px; border-radius: 10px; border-top: 4px solid;
-    background: #fafbfc;
+    padding: 18px; border-radius: 14px; border-top: 4px solid;
+    background: linear-gradient(180deg, white 0%, var(--surface-soft) 100%);
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  .level-def-card.l0 { border-color: #9ca3af; }
+  .level-def-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,23,42,0.08); }
+  .level-def-card.l0 { border-color: #94a3b8; }
   .level-def-card.l1 { border-color: #10b981; }
   .level-def-card.l2 { border-color: #3b82f6; }
   .level-def-card.l3 { border-color: #8b5cf6; }
   .level-def-card .lv-name {
-    font-weight: 700; font-size: 16px; margin-bottom: 8px;
+    font-weight: 700; font-size: 17px; margin-bottom: 8px;
   }
   .level-def-card .lv-def {
-    font-size: 13px; color: #374151; margin-bottom: 8px; line-height: 1.5;
+    font-size: 13px; color: var(--text-1); margin-bottom: 10px; line-height: 1.6;
   }
   .level-def-card .lv-eg {
-    font-size: 11px; color: #6b7280; line-height: 1.6;
-    background: white; padding: 8px; border-radius: 4px; margin-top: 6px;
+    font-size: 11.5px; color: var(--text-2); line-height: 1.7;
+    background: white; padding: 10px 12px; border-radius: 8px; margin-top: 8px;
+    border: 1px solid var(--border);
   }
+  .level-def-card .lv-eg strong { color: var(--text-1); }
 
   /* 统计卡 */
   .stat-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 16px; margin-bottom: 24px;
   }
   .stat-card {
-    background: white; padding: 20px; border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center;
+    background: linear-gradient(135deg, white 0%, var(--surface-soft) 100%);
+    padding: 22px; border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04);
+    text-align: center; border: 1px solid rgba(226,232,240,0.6);
+    transition: transform 0.2s;
   }
-  .stat-card .num { font-size: 28px; font-weight: 700; color: #1F4E79; }
-  .stat-card .label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+  .stat-card:hover { transform: translateY(-3px); }
+  .stat-card .num {
+    font-size: 30px; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-2); margin-top: 6px; font-weight: 500; }
 
   /* 模态框 */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+    backdrop-filter: blur(4px);
     display: none; align-items: center; justify-content: center; z-index: 1000;
+    animation: fadeIn 0.2s ease;
   }
   .modal-overlay.active { display: flex; }
   .modal {
-    background: white; border-radius: 12px; padding: 28px;
+    background: white; border-radius: 16px; padding: 28px;
     width: 90%; max-width: 720px; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
   }
-  .modal h3 { margin-bottom: 16px; color: #1F4E79; }
+  .modal h3 { margin-bottom: 16px; color: var(--text-1); font-weight: 700; font-size: 18px; }
   .empty {
-    text-align: center; padding: 40px; color: #9ca3af; font-size: 14px;
+    text-align: center; padding: 50px 20px; color: var(--text-3); font-size: 14px;
   }
   .tag {
-    display: inline-block; padding: 2px 8px; background: #eff6ff;
-    color: #1e40af; border-radius: 4px; font-size: 11px; margin: 2px;
+    display: inline-block; padding: 3px 10px; background: #eef2ff;
+    color: var(--primary-dark); border-radius: 6px; font-size: 11px; margin: 2px; font-weight: 500;
   }
   .interviewer-row {
-    display: flex; align-items: center; gap: 10px; padding: 12px;
-    border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 12px; padding: 14px;
+    border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+    transition: all 0.15s;
   }
-  .interviewer-row:hover { background: #f9fafb; }
-  .interviewer-row.matched { border-color: #10b981; background: #f0fdf4; }
+  .interviewer-row:hover { background: var(--surface-soft); border-color: var(--primary-light); }
+  .interviewer-row.matched {
+    border-color: #10b981; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  }
   .match-score {
-    display: inline-block; padding: 3px 10px; border-radius: 10px;
-    font-size: 12px; font-weight: 700;
+    display: inline-block; padding: 3px 11px; border-radius: 100px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.2px;
   }
-  .match-high { background: #d1fae5; color: #065f46; }
-  .match-mid { background: #fef3c7; color: #92400e; }
-  .match-low { background: #fee2e2; color: #991b1b; }
+  .match-high { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+  .match-mid { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+  .match-low { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; }
 
   /* 标尺章节 */
   .ruler-banner {
-    background: linear-gradient(135deg, #eff6ff 0%, #ede9fe 100%);
-    border-left: 4px solid #2E75B6; padding: 16px;
-    border-radius: 8px; margin-bottom: 20px;
+    background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 100%);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-left: 4px solid var(--primary); padding: 18px 20px;
+    border-radius: 12px; margin-bottom: 24px;
   }
   .ruler-banner h3 {
-    color: #1F4E79; margin-bottom: 6px; font-size: 15px;
+    color: var(--primary-dark); margin-bottom: 8px; font-size: 15px; font-weight: 700;
   }
-  .ruler-banner p { font-size: 13px; color: #374151; line-height: 1.6; }
+  .ruler-banner p { font-size: 13px; color: var(--text-1); line-height: 1.7; }
 
   /* 时间档期 */
   .schedule-grid {
@@ -219,28 +304,45 @@
     gap: 4px; margin-top: 8px;
   }
   .schedule-cell {
-    padding: 6px 4px; text-align: center; font-size: 11px;
-    border: 1px solid #e5e7eb; border-radius: 4px; cursor: pointer;
-    background: white; user-select: none;
+    padding: 7px 4px; text-align: center; font-size: 11px;
+    border: 1.5px solid var(--border); border-radius: 6px; cursor: pointer;
+    background: white; user-select: none; transition: all 0.15s;
   }
-  .schedule-cell.header { background: #f3f4f6; font-weight: 600; cursor: default; }
-  .schedule-cell.label { background: #f9fafb; font-weight: 600; cursor: default; font-size: 12px; }
-  .schedule-cell.available { background: #d1fae5; color: #065f46; }
-  .schedule-cell:not(.header):not(.label):hover { border-color: #2E75B6; }
+  .schedule-cell.header { background: var(--surface-soft); font-weight: 600; cursor: default; color: var(--text-2); }
+  .schedule-cell.label { background: var(--surface-soft); font-weight: 600; cursor: default; font-size: 12px; color: var(--text-2); }
+  .schedule-cell.available {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46;
+    border-color: #10b981; font-weight: 600;
+  }
+  .schedule-cell:not(.header):not(.label):hover { border-color: var(--primary); }
 
   /* 高亮卡 */
   .highlight {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    padding: 12px; border-radius: 8px; margin-bottom: 12px;
-    font-size: 13px; color: #78350f;
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 14px;
+    font-size: 13px; color: #78350f; line-height: 1.7;
+    border-left: 3px solid #f59e0b;
   }
+
+  /* 自定义能力项框 */
+  .custom-cap-box {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1.5px dashed #f59e0b; border-radius: 10px;
+    padding: 14px; margin-top: 14px;
+  }
+
+  /* 滚动条美化 */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--surface-soft); }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;">v3.3</span></h1>
-  <div class="subtitle">需求方下单 · 管理员评定面试官能力 · 派单匹配 · L0/L1/L2/L3专业标尺</div>
+  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;font-weight:400;">v3.5</span></h1>
+  <div class="subtitle">面向AI算法人才招聘 · 算法/应用开发/跨职能三类能力分组 · L0/L1/L2/L3 统一标尺</div>
 </div>
 
 <div class="role-switcher">
@@ -255,8 +357,8 @@
 <div id="view-demand" class="view active">
   <div class="ruler-banner">
     <h3>📐 填写前请先了解能力标尺</h3>
-    <p>为避免「精通通货膨胀」，请按照统一定义勾选——
-    <strong>L0 无需具备</strong> · <strong>L1 了解（应用调用级）</strong> · <strong>L2 熟练（业务落地级）</strong> · <strong>L3 精通（算法与架构级）</strong>。
+    <p>本系统专为<strong>AI算法人才招聘</strong>设计。能力按 <strong style="color:#831843;">🧪算法</strong> · <strong style="color:#1e3a8a;">🛠应用开发</strong> · <strong style="color:#064e3b;">🎯跨职能</strong> 三类分组。
+    级别采用 <strong>L0 无需具备 · L1 了解 · L2 熟练 · L3 精通</strong> 统一标尺。
     详细定义可点击顶部「📐 能力标尺」查看。</p>
   </div>
 
@@ -274,7 +376,7 @@
     </div>
     <div class="form-group">
       <label>岗位名称 <span class="required">*</span></label>
-      <input type="text" id="d-position" placeholder="如：AI渲染算法工程师">
+      <input type="text" id="d-position" placeholder="如：高级AI算法工程师 / 大模型应用工程师 / RL算法研究员">
     </div>
     <div class="form-group">
       <label>候选人姓名/简历ID <span class="required">*</span></label>
@@ -282,31 +384,21 @@
     </div>
     <div class="form-group">
       <label>核心业务知识要求</label>
-      <textarea id="d-knowledge" placeholder="如：UE5 C++、服务器架构、AAA项目经验"></textarea>
+      <textarea id="d-knowledge" placeholder="如：熟悉游戏AI场景、有大模型项目经验、了解游戏Bot训练等"></textarea>
     </div>
 
     <div class="form-group">
       <label>AI能力项要求 <span class="required">*</span></label>
-      <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">
-        💡 下方为常见能力维度举例，可勾选「必备」或「加分」并指定最低级别。<strong>如有其他能力需求，请在最下方"自定义能力项"填写</strong>
+      <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px; line-height:1.6;">
+        💡 能力按 <strong style="color:#831843;">🧪算法</strong> / <strong style="color:#1e3a8a;">🛠应用开发</strong> / <strong style="color:#064e3b;">🎯跨职能</strong> 三类分组。请勾选「必备」或「加分」并指定最低级别。<strong>如有其他能力需求，可在下方"自定义能力项"补充</strong>
       </div>
-      <table class="capability-table">
-        <thead>
-          <tr>
-            <th style="width: 28%;">能力维度</th>
-            <th style="width: 22%;">需求标记</th>
-            <th style="width: 25%;">最低级别要求</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody id="demand-cap-table"></tbody>
-      </table>
-      <div style="margin-top: 12px; padding: 12px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 6px;">
-        <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:8px;">
+      <div id="demand-cap-container"></div>
+      <div class="custom-cap-box">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">
           ➕ 自定义能力项（如以上维度未覆盖你的需求）
         </div>
         <div id="custom-caps-container"></div>
-        <button type="button" class="btn btn-warning btn-xs" onclick="addCustomCap()" style="margin-top:6px;">+ 添加自定义能力项</button>
+        <button type="button" class="btn btn-warning btn-xs" onclick="addCustomCap()" style="margin-top:8px;">+ 添加自定义能力项</button>
       </div>
     </div>
 
@@ -321,13 +413,13 @@
 
     <div class="form-group">
       <label>面试轮次安排 / 特别考察项</label>
-      <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:6px;line-height:1.6;">
         💡 请说明：① 期望几轮面试 ② <strong>是否有需要特别深挖的能力项或场景</strong> ③ 其他备注
       </div>
       <textarea id="d-note" style="min-height:100px;" placeholder="示例：
 1. 期望2轮交叉面试，本周五前完成
-2. 特别考察项：候选人在LLM Agent的工程化经验（是否独立做过完整Agent链路），以及对推理性能优化的实战经验
-3. 重点关注是否有AAA项目落地案例"></textarea>
+2. 特别考察项：后训练实战经验（独立完成过SFT+RLHF），对齐数据构建能力
+3. 加分项：是否有NeurIPS/ICML等顶会一作论文"></textarea>
     </div>
 
     <button class="btn btn-primary" onclick="submitDemand()">📤 提交需求</button>
@@ -398,60 +490,59 @@
       <div class="level-def-card l1">
         <div class="lv-name" style="color:#10b981;">🟢 L1 - 了解</div>
         <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Familiar / 应用调用级</div>
-        <div class="lv-def"><strong>定义</strong>：理解基本概念和原理，能跑通开源Demo，能使用现成的工具或API完成基础任务。</div>
+        <div class="lv-def"><strong>定义</strong>：理解基本概念和原理，能调用现成API/SDK完成基础任务，能跑通开源Demo或公开教程。</div>
         <div class="lv-eg">
-          <strong>表现示例</strong><br>
-          • 能调用大模型API并编写基础Prompt<br>
-          • 能按教程部署并运行Stable Diffusion<br>
-          • 了解强化学习基本概念<br>
-          • 能使用现成的插件库
+          <strong>表现示例（AI算法方向）</strong><br>
+          • 能调用大模型API（OpenAI/Claude）并写出基础Prompt<br>
+          • 了解Transformer、Attention等基本算法概念<br>
+          • 能跑通开源SFT/LoRA训练脚本<br>
+          • 了解强化学习基本概念（Reward / Policy）
         </div>
         <div class="lv-eg" style="margin-top:6px;">
           <strong>适用场景</strong><br>
-          业务侧需要简单接入AI能力，或作为复合型人才的加分项
+          应用开发岗的基础门槛 / 跨职能岗（PM、运营）的加分项
         </div>
       </div>
       <div class="level-def-card l2">
         <div class="lv-name" style="color:#3b82f6;">🔵 L2 - 熟练</div>
         <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Proficient / 业务落地级</div>
-        <div class="lv-def"><strong>定义</strong>：具备扎实的工程化能力，能将AI技术与游戏业务（UE5/服务器）深度结合，能独立完成数据准备、模型微调或工作流搭建，并解决常见Bug。</div>
+        <div class="lv-def"><strong>定义</strong>：具备扎实的工程化能力，能独立完成数据准备、模型微调或工作流搭建，能将AI技术与游戏业务深度结合并解决常见问题。</div>
         <div class="lv-eg">
-          <strong>表现示例</strong><br>
-          • 熟练使用LangChain等框架搭建复杂Agent工作流<br>
-          • 独立完成开源大模型/CV模型的微调（SFT/LoRA）<br>
-          • 能将ONNX等推理引擎接入游戏客户端<br>
-          • 使用PPO等算法训练游戏AI Bot
+          <strong>表现示例（AI算法方向）</strong><br>
+          • 独立完成开源大模型的SFT/LoRA微调（含数据准备）<br>
+          • 熟练搭建复杂Agent工作流（多工具调用、规划与反思）<br>
+          • 能基于RLHF/DPO做模型对齐与偏好优化<br>
+          • 使用PPO/MARL训练可上线的游戏AI Bot
         </div>
         <div class="lv-eg" style="margin-top:6px;">
           <strong>适用场景</strong><br>
-          AI应用开发的主力军，能独立负责一个AI特性的落地
+          AI应用开发主力 / 后训练工程师 / 能独立负责一个AI特性落地
         </div>
       </div>
       <div class="level-def-card l3">
         <div class="lv-name" style="color:#8b5cf6;">🟣 L3 - 精通</div>
         <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Expert / 算法与架构级</div>
-        <div class="lv-def"><strong>定义</strong>：深入理解底层算法与架构原理，具备核心问题攻坚能力。能解决极端的性能瓶颈（算力、内存、延迟），或针对特定游戏场景设计创新的AI解决方案。</div>
+        <div class="lv-def"><strong>定义</strong>：深入理解底层算法与架构原理，具备核心问题攻坚能力。能改进或重构模型结构，或在特定场景下提出创新的AI解决方案。<strong>能发一作顶会论文是综合能力的集中体现</strong>。</div>
         <div class="lv-eg">
-          <strong>表现示例</strong><br>
+          <strong>表现示例（AI算法方向）</strong><br>
+          • 在NeurIPS/ICML/ICLR/CVPR等顶会发表一作论文<br>
           • 能基于业务需求改进或重构模型网络结构<br>
-          • 精通推理加速与底层优化（TensorRT、CUDA算子）<br>
-          • 能从零设计复杂RL环境与奖励函数<br>
-          • 具备前沿Paper的复现与工程化落地能力
+          • 精通预训练Scaling Law、分布式训练优化<br>
+          • 能从零设计复杂RL环境与奖励函数并解决收敛问题<br>
+          • 推理性能极致优化（量化/算子/调度）
         </div>
         <div class="lv-eg" style="margin-top:6px;">
           <strong>适用场景</strong><br>
-          解决核心技术难题的AI专家、底层架构师或算法研究员
+          AI算法研究员 / 后训练核心专家 / AI技术架构师
         </div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h2>🎯 能力维度清单</h2>
-    <table class="table">
-      <thead><tr><th>能力维度</th><th>说明</th></tr></thead>
-      <tbody id="cap-list-table"></tbody>
-    </table>
+    <h2>🎯 能力维度清单（按分组）</h2>
+    <div class="desc">能力维度按 算法 / 应用开发 / 跨职能 三类组织，覆盖AI算法人才招聘的完整画像</div>
+    <div id="cap-list-container"></div>
   </div>
 
   <div class="card">
@@ -494,25 +585,17 @@
     </div>
     <div class="form-group">
       <label>擅长的业务知识领域</label>
-      <textarea id="iv-knowledge" placeholder="如：渲染管线、UE5、图形学"></textarea>
+      <textarea id="iv-knowledge" placeholder="如：大模型后训练、强化学习、推理优化"></textarea>
     </div>
     <div class="form-group">
       <label>可评估的AI能力及深度（由你+总监+组长共同评定）</label>
-      <table class="capability-table">
-        <thead>
-          <tr>
-            <th style="width:35%">能力维度</th>
-            <th>可把关到的最高层级</th>
-          </tr>
-        </thead>
-        <tbody id="iv-cap-table"></tbody>
-      </table>
-      <div style="margin-top:10px;padding:10px;background:#fffbeb;border:1px dashed #f59e0b;border-radius:6px;">
-        <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:6px;">
+      <div id="iv-cap-container"></div>
+      <div class="custom-cap-box">
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">
           ➕ 自定义能力项（如标准维度未覆盖该面试官擅长领域）
         </div>
         <div id="iv-custom-caps-container"></div>
-        <button type="button" class="btn btn-warning btn-xs" onclick="addIvCustomCap()" style="margin-top:6px;">+ 添加自定义</button>
+        <button type="button" class="btn btn-warning btn-xs" onclick="addIvCustomCap()" style="margin-top:8px;">+ 添加自定义</button>
       </div>
     </div>
     <div class="form-group">
@@ -541,14 +624,30 @@
 
 <script>
 // ============ 数据定义 ============
+// 能力维度按【算法 / 应用开发 / 跨职能】分组，聚焦AI算法方向
 const CAPABILITIES = [
-  { id: 'llm',     name: '大模型应用 (LLM/Agent)', desc: 'Prompt工程、RAG、Agent架构、LangChain等' },
-  { id: 'finetune',name: '模型微调与训练 (SFT/LoRA)', desc: '数据准备、SFT、LoRA、RLHF等' },
-  { id: 'rl',      name: '强化学习/游戏AI (RL)', desc: 'PPO、DQN、游戏Bot训练、奖励函数设计' },
-  { id: 'cv',      name: '计算机视觉/AIGC (CV)', desc: '图像识别、目标检测、SD、ControlNet等' },
-  { id: 'infra',   name: '客户端推理与底层优化', desc: 'ONNX、TensorRT、CUDA、推理加速、引擎接入' },
-  { id: 'product', name: 'AI产品/应用设计', desc: 'AI产品方案、AIGC应用场景、落地路径' },
+  // 🧪 算法类
+  { id: 'pretrain',  group: '算法', name: '预训练与基座模型', desc: '大模型预训练、模型结构改进、Scaling Law、分布式训练等' },
+  { id: 'posttrain', group: '算法', name: '后训练 (Post-Training)', desc: 'SFT、RLHF、DPO、PPO、奖励模型、对齐与偏好优化等' },
+  { id: 'rl',        group: '算法', name: '强化学习 / 游戏Bot', desc: 'PPO/DQN/MARL、Reward设计、游戏AI Bot训练、Self-Play等' },
+  { id: 'multimodal',group: '算法', name: '多模态 / AIGC算法', desc: '视觉/语音/文本融合、Diffusion、SD、视频生成模型等' },
+  { id: 'paper',     group: '算法', name: '论文与前沿研究', desc: '一作顶会论文（NeurIPS/ICML/CVPR等）、Paper复现与改造能力' },
+  // 🛠 应用开发类
+  { id: 'llm_app',   group: '应用开发', name: '大模型应用 (LLM/Agent)', desc: 'Prompt工程、RAG、Agent架构、LangChain/LlamaIndex等' },
+  { id: 'infra',     group: '应用开发', name: '推理工程与性能优化', desc: 'ONNX/TensorRT/vLLM、量化压缩、推理加速、客户端部署' },
+  { id: 'data',      group: '应用开发', name: '数据工程', desc: '数据采集/清洗/标注、Pipeline搭建、数据质量评估' },
+  // 🎯 跨职能（策划/PM/运营）
+  { id: 'product',   group: '跨职能', name: 'AI产品 / 玩法设计', desc: 'AI驱动玩法设计、AIGC应用场景规划、产品方案落地' },
+  { id: 'pm',        group: '跨职能', name: 'AI项目管理', desc: 'AI项目排期、跨团队协调、需求分解、ROI评估' },
+  { id: 'ops',       group: '跨职能', name: 'AI运营 / 内容运营', desc: 'AIGC内容运营、用户行为分析、A/B测试、效果数据闭环' },
 ];
+
+const CAP_GROUPS = ['算法', '应用开发', '跨职能'];
+const GROUP_COLORS = {
+  '算法': { bg: '#fce7f3', border: '#ec4899', text: '#831843' },
+  '应用开发': { bg: '#dbeafe', border: '#3b82f6', text: '#1e3a8a' },
+  '跨职能': { bg: '#d1fae5', border: '#10b981', text: '#064e3b' },
+};
 
 const TIME_SLOTS = ['周一','周二','周三','周四','周五','周六','周日'];
 const TIME_PERIODS = ['上午','下午','晚上'];
@@ -620,49 +719,70 @@ function switchRole(role, ev) {
   if (role === 'ruler') renderRulerView();
 }
 
-// ============ 需求方能力表渲染 ============
+// ============ 需求方能力表渲染（按分组） ============
 function renderDemandCapTable() {
-  const tbody = document.getElementById('demand-cap-table');
-  tbody.innerHTML = CAPABILITIES.map(cap => {
-    const cur = state.demandCaps[cap.id] || {};
-    return `
-      <tr>
-        <td><strong>${cap.name}</strong></td>
-        <td>
-          <div class="req-toggle">
-            <span class="req-btn must ${cur.req === 'must' ? 'active' : ''}"
-                  onclick="setReq('${cap.id}', 'must')">必备</span>
-            <span class="req-btn nice ${cur.req === 'nice' ? 'active' : ''}"
-                  onclick="setReq('${cap.id}', 'nice')">加分</span>
-          </div>
-        </td>
-        <td>
-          <select class="level-select" id="lv-${cap.id}"
-                  ${!cur.req ? 'disabled' : ''}
-                  onchange="setLevel('${cap.id}', this.value)">
-            <option value="">--</option>
-            <option value="L0" ${cur.level==='L0'?'selected':''}>L0 无需具备</option>
-            <option value="L1" ${cur.level==='L1'?'selected':''}>L1 了解</option>
-            <option value="L2" ${cur.level==='L2'?'selected':''}>L2 熟练</option>
-            <option value="L3" ${cur.level==='L3'?'selected':''}>L3 精通</option>
-          </select>
-        </td>
-        <td style="font-size:11px;color:#6b7280;text-align:left;">${cap.desc}</td>
-      </tr>
-      <tr class="cap-note-row">
-        <td colspan="4" style="padding:6px 10px;background:#fafbfc;text-align:left;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:11px;color:#6b7280;white-space:nowrap;">📝 补充说明：</span>
-            <input type="text"
-                   placeholder="如：过来负责UE5渲染管线优化，需要能独立设计AI辅助渲染方案"
-                   value="${cur.note || ''}"
-                   oninput="setCapNote('${cap.id}', this.value)"
-                   style="flex:1;padding:5px 8px;border:1px solid #e5e7eb;border-radius:4px;font-size:12px;background:white;">
-          </div>
-        </td>
-      </tr>
+  const container = document.getElementById('demand-cap-container');
+  let html = '';
+  CAP_GROUPS.forEach(group => {
+    const groupCaps = CAPABILITIES.filter(c => c.group === group);
+    const icon = group === '算法' ? '🧪' : group === '应用开发' ? '🛠' : '🎯';
+    html += `
+      <div class="cap-group-header ${group}">${icon} ${group}类能力</div>
+      <table class="capability-table" style="margin-bottom:14px;">
+        <thead>
+          <tr>
+            <th style="width: 28%;">能力维度</th>
+            <th style="width: 22%;">需求标记</th>
+            <th style="width: 25%;">最低级别要求</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${groupCaps.map(cap => {
+            const cur = state.demandCaps[cap.id] || {};
+            return `
+              <tr>
+                <td><strong>${cap.name}</strong></td>
+                <td>
+                  <div class="req-toggle">
+                    <span class="req-btn must ${cur.req === 'must' ? 'active' : ''}"
+                          onclick="setReq('${cap.id}', 'must')">必备</span>
+                    <span class="req-btn nice ${cur.req === 'nice' ? 'active' : ''}"
+                          onclick="setReq('${cap.id}', 'nice')">加分</span>
+                  </div>
+                </td>
+                <td>
+                  <select class="level-select"
+                          ${!cur.req ? 'disabled' : ''}
+                          onchange="setLevel('${cap.id}', this.value)">
+                    <option value="">--</option>
+                    <option value="L0" ${cur.level==='L0'?'selected':''}>L0 无需具备</option>
+                    <option value="L1" ${cur.level==='L1'?'selected':''}>L1 了解</option>
+                    <option value="L2" ${cur.level==='L2'?'selected':''}>L2 熟练</option>
+                    <option value="L3" ${cur.level==='L3'?'selected':''}>L3 精通</option>
+                  </select>
+                </td>
+                <td style="font-size:11.5px;color:var(--text-2);text-align:left;line-height:1.5;">${cap.desc}</td>
+              </tr>
+              <tr>
+                <td colspan="4" style="padding:6px 12px;background:var(--surface-soft);text-align:left;border-top:none;">
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <span style="font-size:11px;color:var(--text-2);white-space:nowrap;">📝 补充说明：</span>
+                    <input type="text"
+                           placeholder="如：过来负责大模型后训练优化，需要能独立设计RLHF方案"
+                           value="${cur.note || ''}"
+                           oninput="setCapNote('${cap.id}', this.value)"
+                           style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:white;">
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
     `;
-  }).join('');
+  });
+  container.innerHTML = html;
 }
 
 function setReq(capId, type) {
@@ -830,10 +950,22 @@ function renderMyDemands() {
 
 // ============ 标尺视图 ============
 function renderRulerView() {
-  const tbody = document.getElementById('cap-list-table');
-  tbody.innerHTML = CAPABILITIES.map(c =>
-    `<tr><td><strong>${c.name}</strong></td><td>${c.desc}</td></tr>`
-  ).join('');
+  const container = document.getElementById('cap-list-container');
+  let html = '';
+  CAP_GROUPS.forEach(group => {
+    const groupCaps = CAPABILITIES.filter(c => c.group === group);
+    const icon = group === '算法' ? '🧪' : group === '应用开发' ? '🛠' : '🎯';
+    html += `
+      <div class="cap-group-header ${group}">${icon} ${group}类</div>
+      <table class="table" style="margin-bottom:18px;">
+        <thead><tr><th style="width:30%">能力维度</th><th>说明</th></tr></thead>
+        <tbody>
+          ${groupCaps.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  });
+  container.innerHTML = html;
 }
 
 // ============ 管理员视图 ============
@@ -1049,23 +1181,42 @@ function closeInterviewerModal() {
 }
 
 function renderIvCapTable() {
-  const tbody = document.getElementById('iv-cap-table');
-  tbody.innerHTML = CAPABILITIES.map(cap => {
-    const cur = state.ivCaps[cap.id] || '';
-    return `
-      <tr>
-        <td><strong>${cap.name}</strong><br><small style="color:#6b7280;font-size:11px;">${cap.desc}</small></td>
-        <td>
-          <select class="level-select" style="min-width:120px;" onchange="setIvLevel('${cap.id}', this.value)">
-            <option value="">不可面试</option>
-            <option value="L1" ${cur==='L1'?'selected':''}>L1 了解</option>
-            <option value="L2" ${cur==='L2'?'selected':''}>L2 熟练</option>
-            <option value="L3" ${cur==='L3'?'selected':''}>L3 精通</option>
-          </select>
-        </td>
-      </tr>
+  const container = document.getElementById('iv-cap-container');
+  let html = '';
+  CAP_GROUPS.forEach(group => {
+    const groupCaps = CAPABILITIES.filter(c => c.group === group);
+    const icon = group === '算法' ? '🧪' : group === '应用开发' ? '🛠' : '🎯';
+    html += `
+      <div class="cap-group-header ${group}">${icon} ${group}类</div>
+      <table class="capability-table" style="margin-bottom:14px;">
+        <thead>
+          <tr>
+            <th style="width:40%">能力维度</th>
+            <th>可把关到的最高层级</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${groupCaps.map(cap => {
+            const cur = state.ivCaps[cap.id] || '';
+            return `
+              <tr>
+                <td><strong>${cap.name}</strong><br><small style="color:var(--text-2);font-size:11px;">${cap.desc}</small></td>
+                <td>
+                  <select class="level-select" style="min-width:130px;" onchange="setIvLevel('${cap.id}', this.value)">
+                    <option value="">不可面试</option>
+                    <option value="L1" ${cur==='L1'?'selected':''}>L1 了解</option>
+                    <option value="L2" ${cur==='L2'?'selected':''}>L2 熟练</option>
+                    <option value="L3" ${cur==='L3'?'selected':''}>L3 精通</option>
+                  </select>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
     `;
-  }).join('');
+  });
+  container.innerHTML = html;
 }
 
 function setIvLevel(capId, lv) {
@@ -1267,35 +1418,41 @@ function loadDemoData() {
   if (!confirm('加载演示数据将覆盖现有数据，确认？')) return;
   state.interviewers = [
     {
-      name: '张工', team: 'TA组', knowledge: '渲染管线、UE5、图形学',
-      capabilities: { llm: 'L2', infra: 'L3', cv: 'L2' },
+      name: '张算法', team: 'AI Lab · 算法组', knowledge: '后训练、强化学习、对齐',
+      capabilities: { posttrain: 'L3', rl: 'L3', llm_app: 'L2', paper: 'L2' },
       capacity: '2人/周',
       schedule: { '周一-下午': true, '周三-下午': true, '周五-上午': true },
-      contact: '微信:zhanggong', remark: '2026-04-29 评定',
+      contact: '微信:zhang_algo', remark: '2026-04-29 由@李彦+@张总监+@王组长 共同评定',
     },
     {
-      name: '李工', team: '引擎组', knowledge: 'C++、服务器架构',
-      capabilities: { llm: 'L2', finetune: 'L2', rl: 'L3' },
+      name: '李工程', team: '程序一组 · 应用开发', knowledge: 'LLM应用、Agent、推理优化',
+      capabilities: { llm_app: 'L3', infra: 'L3', data: 'L2', posttrain: 'L1' },
       capacity: '3人/周',
       schedule: { '周二-上午': true, '周二-下午': true, '周四-下午': true },
-      contact: '钉钉:ligong', remark: '2026-04-29 评定',
+      contact: '钉钉:li_eng', remark: '2026-04-29 评定',
     },
     {
-      name: '王专家', team: 'AI Lab', knowledge: '深度学习、算法研究',
-      capabilities: { llm: 'L3', finetune: 'L3', rl: 'L3', cv: 'L3', infra: 'L2' },
+      name: '王研究', team: 'AI Lab · 研究组', knowledge: '预训练、多模态、Paper研究',
+      capabilities: { pretrain: 'L3', posttrain: 'L3', multimodal: 'L3', paper: 'L3', rl: 'L2' },
       capacity: '1人/周',
       schedule: { '周三-上午': true, '周五-下午': true },
-      contact: '微信:wangexpert', remark: '工作室AI技术专家',
+      contact: '微信:wang_research', remark: '工作室AI算法专家，能发顶会',
     },
   ];
   state.demands = [
     {
       id: Date.now(),
-      name: '陈策划', team: 'S工作室-策划组', position: 'AI游戏策划',
-      candidate: '候选人A',
-      capabilities: { llm: { req: 'must', level: 'L2' }, product: { req: 'must', level: 'L2' }, rl: { req: 'nice', level: 'L1' } },
-      knowledge: '游戏玩法设计、玩家行为分析',
-      urgency: '高', note: '希望本周完成面试',
+      name: '陈算法负责人', team: '程序三组', position: '高级AI算法工程师（后训练方向）',
+      candidate: '候选人A / R20260429001',
+      capabilities: {
+        posttrain: { req: 'must', level: 'L2', note: '过来负责大模型后训练，需独立完成SFT+RLHF' },
+        rl: { req: 'must', level: 'L1', note: '了解强化学习基础即可' },
+        paper: { req: 'nice', level: 'L2', note: '有顶会论文经历加分' },
+        llm_app: { req: 'nice', level: 'L1', note: '了解Agent即可' },
+      },
+      knowledge: '熟悉大模型对齐、RLHF/DPO等后训练算法',
+      urgency: '高',
+      note: '1. 期望2轮交叉面试\n2. 特别考察项：后训练实战经验、对齐数据构建能力\n3. 加分项：有顶会一作论文',
       status: 'pending', assignedTo: [],
       createdAt: new Date().toISOString(),
     },
