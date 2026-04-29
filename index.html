@@ -102,7 +102,7 @@
   }
   .cap-group-header.应用研究算法 { background: #fce7f3; color: #831843; border-left: 3px solid #ec4899; }
   .cap-group-header.应用开发 { background: #dbeafe; color: #1e3a8a; border-left: 3px solid #3b82f6; }
-  .cap-group-header.跨职能 { background: #d1fae5; color: #064e3b; border-left: 3px solid #10b981; }
+  .cap-group-header.综合能力 { background: #d1fae5; color: #064e3b; border-left: 3px solid #10b981; }
   .capability-table {
     width: 100%; border-collapse: separate; border-spacing: 0;
     margin-top: 4px; border-radius: 10px; overflow: hidden;
@@ -341,8 +341,8 @@
 <body>
 
 <div class="header">
-  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;font-weight:400;">v3.7</span></h1>
-  <div class="subtitle">面向S工作室AI算法人才招聘 · 应用研究/应用开发/跨职能 三类能力分组 · L0~L3 统一标尺</div>
+  <h1>🎯 光子S工作室 · AI招聘交叉面试派单系统 <span style="font-size:13px;opacity:0.7;font-weight:400;">v3.8</span></h1>
+  <div class="subtitle">面向S工作室AI算法人才招聘 · 应用研究/应用开发/综合能力 三类分组 · L0~L3 统一标尺</div>
 </div>
 
 <div class="role-switcher">
@@ -360,7 +360,7 @@
     <p>本系统专为<strong>S工作室AI算法人才招聘</strong>设计。能力按
     <strong style="color:#831843;">🎨 应用研究算法</strong> ·
     <strong style="color:#1e3a8a;">🛠 应用开发</strong> ·
-    <strong style="color:#064e3b;">🎯 跨职能</strong> 三类分组。
+    <strong style="color:#064e3b;">💎 综合能力（软能力）</strong> 三类分组。
     级别采用 <strong>L0 无需具备 · L1 了解 · L2 熟练 · L3 精通</strong> 统一标尺。</p>
   </div>
 
@@ -392,7 +392,7 @@
     <div class="form-group">
       <label>AI能力项要求 <span class="required">*</span></label>
       <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px; line-height:1.65;">
-        💡 S工作室聚焦 <strong>应用研究算法</strong>（后训练、RL、多模态、论文）+ <strong>应用开发</strong> + <strong>跨职能</strong>。请勾选「必备/加分」并指定最低级别。
+        💡 <strong>应用研究算法</strong>是S工作室主力方向；<strong>应用开发</strong>是工程化能力；<strong>综合能力</strong>是AI人才可能需要的软能力（产品思维、项目管理、数据洞察），按需勾选。
       </div>
       <div id="demand-cap-container"></div>
       <div class="custom-cap-box">
@@ -626,8 +626,8 @@
 
 <script>
 // ============ 数据定义 ============
-// 能力维度按【应用研究算法 / 应用开发 / 跨职能】分组
-// S工作室聚焦应用研究方向，不涉及基础研究（预训练）
+// 能力维度按【应用研究算法 / 应用开发 / 综合能力】分组
+// 综合能力是AI算法人才可能需要的软能力，按需勾选
 const CAPABILITIES = [
   // 🎨 应用研究算法（S工作室主力）
   { id: 'posttrain', group: '应用研究算法', name: '后训练 (Post-Training)', desc: 'SFT、RLHF、DPO、PPO、奖励模型、对齐与偏好优化等（应用研究核心能力）' },
@@ -638,17 +638,17 @@ const CAPABILITIES = [
   { id: 'llm_app',   group: '应用开发', name: '大模型应用 (LLM/Agent)', desc: 'Prompt工程、RAG、Agent架构、LangChain/LlamaIndex等' },
   { id: 'infra',     group: '应用开发', name: '推理工程与性能优化', desc: 'ONNX/TensorRT/vLLM、量化压缩、推理加速、客户端部署' },
   { id: 'data',      group: '应用开发', name: '数据工程', desc: '数据采集/清洗/标注、Pipeline搭建、数据质量评估' },
-  // 🎯 跨职能（策划/PM/运营）
-  { id: 'product',   group: '跨职能', name: 'AI产品 / 玩法设计', desc: 'AI驱动玩法设计、AIGC应用场景规划、产品方案落地' },
-  { id: 'pm',        group: '跨职能', name: 'AI项目管理', desc: 'AI项目排期、跨团队协调、需求分解、ROI评估' },
-  { id: 'ops',       group: '跨职能', name: 'AI运营 / 内容运营', desc: 'AIGC内容运营、用户行为分析、A/B测试、效果数据闭环' },
+  // 💎 综合能力（AI算法人才可能需要的软能力，按需勾选）
+  { id: 'product',   group: '综合能力', name: '产品思维 / 玩法洞察', desc: '能从业务/玩家视角思考AI落地价值，理解游戏玩法设计与AIGC应用场景' },
+  { id: 'pm',        group: '综合能力', name: '项目管理 / 推进力', desc: '能拆解需求、协调资源、推动技术落地，具备跨团队协作与ROI判断能力' },
+  { id: 'ops',       group: '综合能力', name: '数据洞察 / 效果运营', desc: '能用数据驱动模型迭代，会做A/B测试、效果分析与数据闭环' },
 ];
 
-const CAP_GROUPS = ['应用研究算法', '应用开发', '跨职能'];
+const CAP_GROUPS = ['应用研究算法', '应用开发', '综合能力'];
 const GROUP_COLORS = {
   '应用研究算法': { bg: '#fce7f3', border: '#ec4899', text: '#831843' },
   '应用开发': { bg: '#dbeafe', border: '#3b82f6', text: '#1e3a8a' },
-  '跨职能': { bg: '#d1fae5', border: '#10b981', text: '#064e3b' },
+  '综合能力': { bg: '#d1fae5', border: '#10b981', text: '#064e3b' },
 };
 
 const TIME_SLOTS = ['周一','周二','周三','周四','周五','周六','周日'];
@@ -658,14 +658,14 @@ function getGroupIcon(group) {
   return {
     '应用研究算法': '🎨',
     '应用开发': '🛠',
-    '跨职能': '🎯',
+    '综合能力': '💎',
   }[group] || '📌';
 }
 function getGroupHint(group) {
   return {
     '应用研究算法': 'S工作室主力方向',
     '应用开发': 'AI应用工程师必备',
-    '跨职能': '策划/PM/运营岗参考',
+    '综合能力': 'AI算法人才的软能力，按需勾选',
   }[group] || '';
 }
 
